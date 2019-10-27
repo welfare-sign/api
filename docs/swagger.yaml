@@ -1,0 +1,308 @@
+basePath: /v1
+definitions:
+  http.baseResponse:
+    properties:
+      code:
+        type: string
+      data:
+        type: object
+      error:
+        type: string
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+  model.MerchantLoginVO:
+    properties:
+      code:
+        type: integer
+      contact_phone:
+        type: string
+    type: object
+  model.MerchantVO:
+    properties:
+      address:
+        description: 地址
+        type: string
+      catering_type:
+        description: 餐饮类型
+        type: string
+      checkin_days:
+        description: 签到天数多少天可领取礼品
+        type: integer
+      checkin_num:
+        description: 达到指定签到天数后，可领取的礼品数量
+        type: integer
+      contact_name:
+        description: 联系人
+        type: string
+      contact_phone:
+        description: 联系人电话
+        type: string
+      lat:
+        description: 纬度
+        type: number
+      lon:
+        description: 经度
+        type: number
+      poster:
+        description: 商户海报
+        type: string
+      received:
+        description: 已领礼品数量
+        type: integer
+      store_avatar:
+        description: 店铺头像
+        type: string
+      store_name:
+        description: 店名
+        type: string
+      total_receive:
+        description: 该店礼品一共可领取总数
+        type: integer
+    required:
+    - address
+    - contact_phone
+    - lat
+    - lon
+    - store_avatar
+    - store_name
+    - total_receive
+    type: object
+  model.UserVO:
+    properties:
+      name:
+        description: 用户名
+        type: string
+      password:
+        description: 密码
+        type: string
+    required:
+    - name
+    - password
+    type: object
+info:
+  contact: {}
+  description: 福利签API文档
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: 福利签API文档
+  version: "1.0"
+paths:
+  /customers:
+    get:
+      consumes:
+      - application/json
+      description: get customer list
+      parameters:
+      - description: 用户名
+        in: query
+        name: name
+        type: string
+      - description: 联系电话
+        in: query
+        name: mobile
+        type: string
+      - default: 1
+        description: 页码
+        in: query
+        name: page_no
+        type: integer
+      - default: 10
+        description: 页数
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 获取客户列表
+      tags:
+      - 客户
+  /files/download:
+    get:
+      consumes:
+      - application/json
+      description: download file
+      parameters:
+      - description: filename
+        in: query
+        name: filename
+        required: true
+        type: string
+      - default: '"avatar", "poster"'
+        description: file type
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 下载文件
+      tags:
+      - 文件
+  /files/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: upload file
+      parameters:
+      - description: upload file
+        in: formData
+        name: file
+        required: true
+        type: file
+      - default: '"avatar", "poster"'
+        description: file type
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 上传文件
+      tags:
+      - 文件
+  /merchants:
+    get:
+      consumes:
+      - application/json
+      description: get merchant list
+      parameters:
+      - description: 商户名
+        in: query
+        name: store_name
+        type: string
+      - description: 联系人
+        in: query
+        name: contact_name
+        type: string
+      - description: 联系电话
+        in: query
+        name: contact_phone
+        type: string
+      - default: 1
+        description: 页码
+        in: query
+        name: page_no
+        type: integer
+      - default: 10
+        description: 页数
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 获取商户列表
+      tags:
+      - 商户
+    post:
+      consumes:
+      - application/json
+      description: create new merchant
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/model.MerchantVO'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 新增商户
+      tags:
+      - 商户
+  /merchants/login:
+    post:
+      consumes:
+      - application/json
+      description: merchant login
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/model.MerchantLoginVO'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 商户登录
+      tags:
+      - 商户
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: user login
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserVO'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 后台用户登录
+      tags:
+      - 后台用户
+  /verify_code:
+    get:
+      consumes:
+      - application/json
+      description: send verify code
+      parameters:
+      - description: 手机号
+        in: query
+        name: mobile
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 发送验证码
+      tags:
+      - 验证码
+swagger: "2.0"
