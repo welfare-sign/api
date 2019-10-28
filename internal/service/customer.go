@@ -24,3 +24,8 @@ func (s *Service) GetCustomerList(ctx context.Context, vo model.CustomerListVO) 
 
 	return s.dao.ListCustomer(ctx, query, vo.PageNo, vo.PageSize)
 }
+
+// GetCustomerDetail 获取客户详情
+func (s *Service) GetCustomerDetail(ctx context.Context, customerId uint64) (*model.Customer, error) {
+	return s.dao.FindCustomer(ctx, map[string]interface{}{"id": customerId})
+}

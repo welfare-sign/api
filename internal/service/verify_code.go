@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -23,6 +24,18 @@ func (s *Service) SendVerifyCode(ctx context.Context, mobile string) error {
 	}
 	if err := s.dao.SaveSMSCode(ctx, mobile, code); err != nil {
 		log.Warn(ctx, "验证码保存到缓存失败", zap.Error(err))
+	}
+	return nil
+}
+
+// ValidateCode 根据传入的手机号，验证码验证是否正确
+func (s *Service) ValidateCode(ctx context.Context, mobile, code string) error {
+	res, err := s.dao.GetSMSCode(ctx, mobile)
+	if err != nil {
+		return err
+	}
+	if res != code {
+		return errors.New("验证码不正确")
 	}
 	return nil
 }

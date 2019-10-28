@@ -42,8 +42,11 @@ func initRouter(e *gin.Engine) {
 	{
 		// 商户
 		v1.POST("/merchants", addMerchant)
-		v1.GET("merchants", getMerchantList)
+		v1.GET("/merchants", getMerchantList)
 		v1.POST("/merchants/login", merchantLogin)
+		v1.GET("/merchants/detail", merchantDetail)
+		v1.GET("/merchants/writeoff", getWriteOff)
+		v1.POST("/merchants/writeoff", writeOff)
 		// 后台用户
 		v1.POST("/users/login", userLogin)
 		// 文件
@@ -51,6 +54,7 @@ func initRouter(e *gin.Engine) {
 		v1.GET("/files/download", downloadFile)
 		// 客户
 		v1.GET("/customers", getCustomerList)
+		v1.GET("/customers/detail", customerDetail)
 		// 验证码
 		v1.GET("/verify_code", getVerifyCode)
 	}

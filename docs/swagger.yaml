@@ -13,12 +13,25 @@ definitions:
       status:
         type: boolean
     type: object
+  model.MerchantExecWriteOffVO:
+    properties:
+      access_token:
+        example: 商户token
+        type: string
+    required:
+    - access_token
+    type: object
   model.MerchantLoginVO:
     properties:
       code:
-        type: integer
-      contact_phone:
+        example: 验证码
         type: string
+      contact_phone:
+        example: 手机号
+        type: string
+    required:
+    - code
+    - contact_phone
     type: object
   model.MerchantVO:
     properties:
@@ -123,6 +136,27 @@ paths:
           schema:
             $ref: '#/definitions/http.baseResponse'
       summary: 获取客户列表
+      tags:
+      - 客户
+  /customers/detail:
+    get:
+      consumes:
+      - application/json
+      description: get customer detail
+      parameters:
+      - description: 客户ID
+        in: query
+        name: customer_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 获取客户详情
       tags:
       - 客户
   /files/download:
@@ -239,6 +273,27 @@ paths:
       summary: 新增商户
       tags:
       - 商户
+  /merchants/detail:
+    get:
+      consumes:
+      - application/json
+      description: get merchant detail
+      parameters:
+      - description: 商户token
+        in: query
+        name: access_token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 获取商户详情信息
+      tags:
+      - 商户
   /merchants/login:
     post:
       consumes:
@@ -260,6 +315,54 @@ paths:
           schema:
             $ref: '#/definitions/http.baseResponse'
       summary: 商户登录
+      tags:
+      - 商户
+  /merchants/writeoff:
+    get:
+      consumes:
+      - application/json
+      description: get merchant write off
+      parameters:
+      - description: 商户token
+        in: query
+        name: access_token
+        required: true
+        type: string
+      - description: 客户ID
+        in: query
+        name: customer_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 获取商户核销信息
+      tags:
+      - 商户
+    post:
+      consumes:
+      - application/json
+      description: merchant exec write off
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/model.MerchantExecWriteOffVO'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/http.baseResponse'
+      summary: 商户核销
       tags:
       - 商户
   /users/login:

@@ -20,6 +20,11 @@ type Dao interface {
 	FindUser(ctx context.Context, data model.User) (*model.User, error)
 	ListCustomer(ctx context.Context, query interface{}, pageNo, pageSize int) ([]*model.Customer, error)
 	SaveSMSCode(ctx context.Context, mobile, code string) error
+	GetSMSCode(ctx context.Context, mobile string) (string, error)
+	FindMerchant(ctx context.Context, query interface{}) (*model.Merchant, error)
+	FindCustomer(ctx context.Context, query interface{}) (*model.Customer, error)
+	FindIssueRecord(ctx context.Context, query interface{}) (*model.IssueRecord, error)
+	EcecWriteOff(ctx context.Context, merchantId, customerId, hasRece, totalRece uint64) error
 }
 
 // dao dao.

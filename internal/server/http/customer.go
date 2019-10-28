@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -40,5 +41,51 @@ func getCustomerList(c *gin.Context) {
 		Code:    apicode.Success,
 		Message: apicode.MapZH[apicode.Success],
 		Data:    customers,
+	})
+}
+
+// customerDetail 获取客户详情
+// @Summary 获取客户详情
+// @Description get customer detail
+// @Tags 客户
+// @Accept json
+// @Produce json
+// @Param customer_id query string true "客户ID"
+// @Success 200 {object} http.baseResponse	"{"status":true}"
+// @Router /customers/detail [get]
+func customerDetail(c *gin.Context) {
+	customerId := c.Query("customer_id")
+	if customerId == "" {
+		c.JSON(http.StatusOK, baseResponse{
+			Status:  false,
+			Code:    apicode.ErrInvalidParame,
+			Message: apicode.MapZH[apicode.ErrInvalidParame],
+		})
+		return
+	}
+	_customerId, err := strconv.ParseUint(customerId, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusOK, baseResponse{
+			Status:  false,
+			Code:    apicode.ErrInvalidParame,
+			Message: apicode.MapZH[apicode.ErrInvalidParame],
+		})
+		return
+	}
+	customer, err := svc.GetCustomerDetail(c, _customerId)
+	if err != nil {
+		c.JSON(http.StatusOK, baseResponse{
+			Status:  false,
+			Code:    apicode.ErrDetail,
+			Message: apicode.MapZH[apicode.ErrDetail],
+			Error:   err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, baseResponse{
+		Status:  true,
+		Code:    apicode.Success,
+		Message: apicode.MapZH[apicode.Success],
+		Data:    customer,
 	})
 }

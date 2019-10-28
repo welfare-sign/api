@@ -63,6 +63,38 @@
                 }
             }
         },
+        "/customers/detail": {
+            "get": {
+                "description": "get customer detail",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "客户"
+                ],
+                "summary": "获取客户详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "客户ID",
+                        "name": "customer_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/http.baseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/files/download": {
             "get": {
                 "description": "download file",
@@ -233,6 +265,38 @@
                 }
             }
         },
+        "/merchants/detail": {
+            "get": {
+                "description": "get merchant detail",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户"
+                ],
+                "summary": "获取商户详情信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "商户token",
+                        "name": "access_token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/http.baseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/merchants/login": {
             "post": {
                 "description": "merchant login",
@@ -255,6 +319,78 @@
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/model.MerchantLoginVO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/http.baseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/merchants/writeoff": {
+            "get": {
+                "description": "get merchant write off",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户"
+                ],
+                "summary": "获取商户核销信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "商户token",
+                        "name": "access_token",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "客户ID",
+                        "name": "customer_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/http.baseResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "merchant exec write off",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户"
+                ],
+                "summary": "商户核销",
+                "parameters": [
+                    {
+                        "description": "参数",
+                        "name": "args",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.MerchantExecWriteOffVO"
                         }
                     }
                 ],
@@ -356,14 +492,32 @@
                 }
             }
         },
+        "model.MerchantExecWriteOffVO": {
+            "type": "object",
+            "required": [
+                "access_token"
+            ],
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "商户token"
+                }
+            }
+        },
         "model.MerchantLoginVO": {
             "type": "object",
+            "required": [
+                "code",
+                "contact_phone"
+            ],
             "properties": {
                 "code": {
-                    "type": "integer"
+                    "type": "string",
+                    "example": "验证码"
                 },
                 "contact_phone": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "手机号"
                 }
             }
         },

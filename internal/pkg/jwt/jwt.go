@@ -39,7 +39,7 @@ func ParseToken(token string) (*TokenParames, error) {
 	// 基于公钥验证Token合法性
 	tokenClaims, err := jwt.ParseWithClaims(token, &TokenParames{}, func(token *jwt.Token) (interface{}, error) {
 		// 基于JWT的第一部分中的alg字段值进行一次验证
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("token's encryption type error")
 		}
 		return sign, nil

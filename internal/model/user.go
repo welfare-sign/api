@@ -10,6 +10,6 @@ type User struct {
 
 // UserVO 用户登录
 type UserVO struct {
-	Name     string `json:"name" validate:"required"`     // 用户名
-	Password string `json:"password" validate:"required"` // 密码
+	Name     string `json:"name" binding:"required"`     // 用户名
+	Password string `json:"password" binding:"required"` // 密码
 }
