@@ -4,7 +4,13 @@ package model
 type CheckinRecord struct {
 	Base
 
-	CustomerId            uint64 `json:"customer_id" gorm:"not null"` // 签到人ID
-	HelpCheckinCustomerId uint64 `json:"help_checkin_customer_id"`    // 帮签人ID
-	Day                   uint64 `json:"day" gorm:"not null"`         // 签到第几天
+	CustomerId            uint64 `json:"customer_id" gorm:"not null"`               // 签到人ID
+	HelpCheckinCustomerId uint64 `json:"help_checkin_customer_id" gorm:"default:0"` // 帮签人ID
+	Day                   uint64 `json:"day" gorm:"not null"`                       // 签到第几天
+}
+
+// CheckinRecordVO 记录客户签到
+type CheckinRecordVO struct {
+	AccessToken string `form:"access_token" json:"access_token" binding:"required" example:"客户token"`
+	Day         uint64 `form:"customer_id" json:"customer_id" binding:"required" example:"客户ID"`
 }

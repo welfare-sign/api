@@ -66,7 +66,7 @@ type MerchantWriteOffRespVO struct {
 
 // MerchantExecWriteOffVO 商户执行核销参数
 type MerchantExecWriteOffVO struct {
-	AccessToken string `form:"access_token" json:"access_token" binding:"required" example:"商户token"`
-	CustomerID  uint64 `form:"customer_id" json:"customer_id" binding:"required" example:"客户ID"`
-	Num         uint64 `form:"num" json:"num" binding:"required" example:"核销数目"`
+	MerchantID uint64
+	CustomerID uint64
+	Num        uint64
 }

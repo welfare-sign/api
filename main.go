@@ -12,7 +12,7 @@ import (
 
 	"welfare-sign/internal/pkg/log"
 	"welfare-sign/internal/pkg/util"
-	"welfare-sign/internal/server/http"
+	"welfare-sign/internal/server"
 	"welfare-sign/internal/service"
 )
 
@@ -22,9 +22,12 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @BasePath /v1
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	svc := service.New()
-	httpSrv := http.New(svc)
+	httpSrv := server.New(svc)
 	quit := make(chan os.Signal, 1)
 	go func() {
 		if err := httpSrv.ListenAndServe(); err != nil && err != http2.ErrServerClosed {

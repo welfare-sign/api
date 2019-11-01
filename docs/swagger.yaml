@@ -1,25 +1,145 @@
 basePath: /v1
 definitions:
-  http.baseResponse:
+  jwt.TokenParames:
     properties:
-      code:
+      mobile:
+        description: 手机号
         type: string
-      data:
-        type: object
-      error:
+      name:
+        description: 姓名
         type: string
-      message:
+      uid:
+        description: uid
+        type: integer
+    type: object
+  model.CheckinRecord:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      customer_id:
+        description: 签到人ID
+        type: integer
+      day:
+        description: 签到第几天
+        type: integer
+      help_checkin_customer_id:
+        description: 帮签人ID
+        type: integer
+      id:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  model.Customer:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      id:
+        type: integer
+      last_checkin_time:
+        description: 最后一次签到时间
+        type: string
+      mobile:
+        description: 手机号
+        type: string
+      name:
+        description: 称呼
         type: string
       status:
-        type: boolean
-    type: object
-  model.MerchantExecWriteOffVO:
-    properties:
-      access_token:
-        example: 商户token
         type: string
-    required:
-    - access_token
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  model.IssueRecord:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      customer_id:
+        description: 顾客ID
+        type: integer
+      id:
+        type: integer
+      merchant_id:
+        description: 店铺ID
+        type: integer
+      received:
+        description: 在对应店铺已兑换的礼品数
+        type: integer
+      status:
+        type: string
+      total_receive:
+        description: 在对应店铺可领取的总礼品数
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  model.Merchant:
+    properties:
+      address:
+        description: 地址
+        type: string
+      catering_type:
+        description: 餐饮类型
+        type: string
+      checkin_days:
+        description: 签到天数多少天可领取礼品
+        type: integer
+      checkin_num:
+        description: 达到指定签到天数后，可领取的礼品数量
+        type: integer
+      contact_name:
+        description: 联系人
+        type: string
+      contact_phone:
+        description: 联系人电话
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      id:
+        type: integer
+      lat:
+        description: 纬度
+        type: number
+      lon:
+        description: 经度
+        type: number
+      poster:
+        description: 商户海报
+        type: string
+      received:
+        description: 已领礼品数量
+        type: integer
+      status:
+        type: string
+      store_avatar:
+        description: 店铺头像
+        type: string
+      store_name:
+        description: 店名
+        type: string
+      total_receive:
+        description: 该店礼品一共可领取总数
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
     type: object
   model.MerchantLoginVO:
     properties:
@@ -83,7 +203,197 @@ definitions:
     - store_name
     - total_receive
     type: object
-  model.UserVO:
+  model.MerchantWriteOffRespVO:
+    properties:
+      customer:
+        $ref: '#/definitions/model.Customer'
+        type: object
+      issue_record:
+        $ref: '#/definitions/model.IssueRecord'
+        type: object
+      merchant:
+        $ref: '#/definitions/model.Merchant'
+        type: object
+    type: object
+  server.BaseResponse:
+    properties:
+      code:
+        type: string
+      data:
+        type: object
+      error:
+        type: string
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+  server.CheckinRecordResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/model.CheckinRecord'
+        type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.CodeResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.CustomerDetailResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.Customer'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.CustomerListResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/model.Customer'
+        type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ExecWriteOffRequest:
+    properties:
+      tokenParames:
+        $ref: '#/definitions/jwt.TokenParames'
+        type: object
+    type: object
+  server.ExecWriteOffResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.MerchantWriteOffRespVO'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.MerchantAddResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.MerchantDetailResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.Merchant'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.MerchantListResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/model.Merchant'
+        type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.MerchantLoginResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        description: access token
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.UserLoginRequest:
     properties:
       name:
         description: 用户名
@@ -94,6 +404,42 @@ definitions:
     required:
     - name
     - password
+    type: object
+  server.UserLoginResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        description: access token
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.WriteOffResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.MerchantWriteOffRespVO'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
     type: object
 info:
   contact: {}
@@ -134,8 +480,27 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.CustomerListResponse'
+      security:
+      - ApiKeyAuth: []
       summary: 获取客户列表
+      tags:
+      - 客户
+  /customers/checkin_record:
+    get:
+      consumes:
+      - application/json
+      description: get customer checkin record
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.CheckinRecordResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取签到记录
       tags:
       - 客户
   /customers/detail:
@@ -144,10 +509,9 @@ paths:
       - application/json
       description: get customer detail
       parameters:
-      - description: 客户ID
+      - description: 客户ID,客户访问时可不传
         in: query
         name: customer_id
-        required: true
         type: string
       produces:
       - application/json
@@ -155,7 +519,9 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.CustomerDetailResponse'
+      security:
+      - ApiKeyAuth: []
       summary: 获取客户详情
       tags:
       - 客户
@@ -182,7 +548,7 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.BaseResponse'
       summary: 下载文件
       tags:
       - 文件
@@ -209,7 +575,7 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.BaseResponse'
       summary: 上传文件
       tags:
       - 文件
@@ -247,7 +613,9 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.MerchantListResponse'
+      security:
+      - ApiKeyAuth: []
       summary: 获取商户列表
       tags:
       - 商户
@@ -269,7 +637,9 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.MerchantAddResponse'
+      security:
+      - ApiKeyAuth: []
       summary: 新增商户
       tags:
       - 商户
@@ -279,10 +649,9 @@ paths:
       - application/json
       description: get merchant detail
       parameters:
-      - description: 商户token
+      - description: 商户ID,商户访问时可不传
         in: query
-        name: access_token
-        required: true
+        name: merchant_id
         type: string
       produces:
       - application/json
@@ -290,7 +659,9 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.MerchantDetailResponse'
+      security:
+      - ApiKeyAuth: []
       summary: 获取商户详情信息
       tags:
       - 商户
@@ -313,7 +684,7 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.MerchantLoginResponse'
       summary: 商户登录
       tags:
       - 商户
@@ -321,13 +692,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: get merchant write off
+      description: merchant get customer write off
       parameters:
-      - description: 商户token
-        in: query
-        name: access_token
-        required: true
-        type: string
       - description: 客户ID
         in: query
         name: customer_id
@@ -339,8 +705,10 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
-      summary: 获取商户核销信息
+            $ref: '#/definitions/server.WriteOffResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 商户获取核销信息
       tags:
       - 商户
     post:
@@ -353,7 +721,7 @@ paths:
         name: args
         required: true
         schema:
-          $ref: '#/definitions/model.MerchantExecWriteOffVO'
+          $ref: '#/definitions/server.ExecWriteOffRequest'
           type: object
       produces:
       - application/json
@@ -361,7 +729,9 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.ExecWriteOffResponse'
+      security:
+      - ApiKeyAuth: []
       summary: 商户核销
       tags:
       - 商户
@@ -376,7 +746,7 @@ paths:
         name: args
         required: true
         schema:
-          $ref: '#/definitions/model.UserVO'
+          $ref: '#/definitions/server.UserLoginRequest'
           type: object
       produces:
       - application/json
@@ -384,7 +754,7 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.UserLoginResponse'
       summary: 后台用户登录
       tags:
       - 后台用户
@@ -392,7 +762,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: send verify code
+      description: send sms code
       parameters:
       - description: 手机号
         in: query
@@ -404,8 +774,13 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/http.baseResponse'
+            $ref: '#/definitions/server.CodeResponse'
       summary: 发送验证码
       tags:
       - 验证码
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -17,7 +17,7 @@ type Dao interface {
 	Ping(ctx context.Context) (err error)
 	CreateMerchant(ctx context.Context, data model.Merchant) error
 	ListMerchant(ctx context.Context, query interface{}, pageNo, pageSize int) ([]*model.Merchant, error)
-	FindUser(ctx context.Context, data model.User) (*model.User, error)
+	FindUser(ctx context.Context, query interface{}) (*model.User, error)
 	ListCustomer(ctx context.Context, query interface{}, pageNo, pageSize int) ([]*model.Customer, error)
 	SaveSMSCode(ctx context.Context, mobile, code string) error
 	GetSMSCode(ctx context.Context, mobile string) (string, error)
@@ -25,6 +25,8 @@ type Dao interface {
 	FindCustomer(ctx context.Context, query interface{}) (*model.Customer, error)
 	FindIssueRecord(ctx context.Context, query interface{}) (*model.IssueRecord, error)
 	EcecWriteOff(ctx context.Context, merchantId, customerId, hasRece, totalRece uint64) error
+	ListCheckinRecord(ctx context.Context, query interface{}) ([]*model.CheckinRecord, error)
+	InitCheckinRecords(ctx context.Context, customerId uint64) ([]*model.CheckinRecord, error)
 }
 
 // dao dao.

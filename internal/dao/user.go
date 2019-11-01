@@ -7,8 +7,8 @@ import (
 )
 
 // FindUser find user
-func (d *dao) FindUser(ctx context.Context, data model.User) (*model.User, error) {
+func (d *dao) FindUser(ctx context.Context, query interface{}) (*model.User, error) {
 	var user model.User
-	err := d.db.Where(&data).Find(&user).Error
+	err := d.db.Where(query).Find(&user).Error
 	return &user, err
 }

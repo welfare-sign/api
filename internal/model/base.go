@@ -11,10 +11,10 @@ type Kratos struct {
 type Base struct {
 	ID        uint64    `json:"id" gorm:"AUTO_INCREMENT;PRIMARY_KEY"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"not null;type:datetime"`
-	UpdatedBy uint64    `json:"updated_by" gorm:"not null"`
+	UpdatedBy uint64    `json:"updated_by" gorm:"not null;default:0"`
 	CreatedAt time.Time `json:"created_at" gorm:"not null;type:datetime"`
-	CreatedBy uint64    `json:"created_by" gorm:"not null"`
-	Status    string    `json:"status" gorm:"type:char(1);not null"`
+	CreatedBy uint64    `json:"created_by" gorm:"not null;default:0"`
+	Status    string    `json:"status" gorm:"type:char(1);not null;default:'A'"`
 }
 
 // SetDefaultAttr 设置默认的属性值

@@ -7,25 +7,27 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"welfare-sign/internal/apicode"
 	"welfare-sign/internal/pkg/config"
 	"welfare-sign/internal/pkg/log"
 	"welfare-sign/internal/pkg/sms"
 	"welfare-sign/internal/pkg/util"
+	"welfare-sign/internal/pkg/wsgin"
 )
 
 // SendVerifyCode 发送验证码
-func (s *Service) SendVerifyCode(ctx context.Context, mobile string) error {
+func (s *Service) SendVerifyCode(ctx context.Context, mobile string) (wsgin.APICode, error) {
 	code := util.GenerateCode()
 
 	if err := sms.Send(mobile, viper.GetString(config.KeySMSTemplate), map[string]string{
 		"code": code,
 	}); err != nil {
-		return err
+		return apicode.ErrSendSMS, err
 	}
 	if err := s.dao.SaveSMSCode(ctx, mobile, code); err != nil {
 		log.Warn(ctx, "验证码保存到缓存失败", zap.Error(err))
 	}
-	return nil
+	return wsgin.APICodeSuccess, nil
 }
 
 // ValidateCode 根据传入的手机号，验证码验证是否正确

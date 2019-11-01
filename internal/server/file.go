@@ -1,4 +1,4 @@
-package http
+package server
 
 import (
 	"io"
@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"welfare-sign/internal/apicode"
+	"welfare-sign/internal/pkg/wsgin"
 )
 
 // uploadFile 上传文件
@@ -20,25 +21,26 @@ import (
 // @Produce json
 // @Param file formData file true "upload file"
 // @Param type query string true "file type" default("avatar", "poster")
-// @Success 200 {object} http.baseResponse	"{"status":true}"
+// @Success 200 {object} server.BaseResponse	"{"status":true}"
 // @Router /files/upload [post]
 func uploadFile(c *gin.Context) {
+
 	file, err := c.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusOK, baseResponse{
+		c.JSON(http.StatusOK, BaseResponse{
 			Status:  false,
-			Code:    apicode.ErrInvalidParame,
-			Message: apicode.MapZH[apicode.ErrInvalidParame],
+			Code:    wsgin.APICodeInvalidParame,
+			Message: wsgin.APICodeMapZH[wsgin.APICodeInvalidParame],
 			Error:   err.Error(),
 		})
 		return
 	}
 	spec := c.Query("type")
 	if spec != "avatar" && spec != "poster" {
-		c.JSON(http.StatusOK, baseResponse{
+		c.JSON(http.StatusOK, BaseResponse{
 			Status:  false,
-			Code:    apicode.ErrInvalidParame,
-			Message: apicode.MapZH[apicode.ErrInvalidParame],
+			Code:    wsgin.APICodeInvalidParame,
+			Message: wsgin.APICodeMapZH[wsgin.APICodeInvalidParame],
 			Error:   "invalid type",
 		})
 		return
@@ -46,18 +48,18 @@ func uploadFile(c *gin.Context) {
 	filePrefix := "upload/" + spec + "/"
 	filename := strconv.FormatInt(time.Now().Unix(), 10) + ".png"
 	if err := c.SaveUploadedFile(file, filePrefix+filename); err != nil {
-		c.JSON(http.StatusOK, baseResponse{
+		c.JSON(http.StatusOK, BaseResponse{
 			Status:  false,
 			Code:    apicode.ErrUploadFile,
-			Message: apicode.MapZH[apicode.ErrUploadFile],
+			Message: wsgin.APICodeMapZH[apicode.ErrUploadFile],
 			Error:   err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, baseResponse{
+	c.JSON(http.StatusOK, BaseResponse{
 		Status:  true,
-		Code:    apicode.Success,
-		Message: apicode.MapZH[apicode.Success],
+		Code:    wsgin.APICodeSuccess,
+		Message: wsgin.APICodeMapZH[wsgin.APICodeSuccess],
 		Data:    filename,
 	})
 }
@@ -70,16 +72,16 @@ func uploadFile(c *gin.Context) {
 // @Produce json
 // @Param filename query string true "filename"
 // @Param type query string true "file type" default("avatar", "poster")
-// @Success 200 {object} http.baseResponse	"{"status":true}"
+// @Success 200 {object} server.BaseResponse	"{"status":true}"
 // @Router /files/download [get]
 func downloadFile(c *gin.Context) {
 	filename := c.Query("filename")
 	spec := c.Query("type")
 	if spec != "avatar" && spec != "poster" {
-		c.JSON(http.StatusOK, baseResponse{
+		c.JSON(http.StatusOK, BaseResponse{
 			Status:  false,
-			Code:    apicode.ErrInvalidParame,
-			Message: apicode.MapZH[apicode.ErrInvalidParame],
+			Code:    wsgin.APICodeInvalidParame,
+			Message: wsgin.APICodeMapZH[wsgin.APICodeInvalidParame],
 			Error:   "invalid type",
 		})
 		return
@@ -87,10 +89,10 @@ func downloadFile(c *gin.Context) {
 	filepath := "upload/" + spec + "/" + filename
 	file, err := os.Open(filepath)
 	if err != nil {
-		c.JSON(http.StatusOK, baseResponse{
+		c.JSON(http.StatusOK, BaseResponse{
 			Status:  false,
 			Code:    apicode.ErrDownloadFile,
-			Message: apicode.MapZH[apicode.ErrDownloadFile],
+			Message: wsgin.APICodeMapZH[apicode.ErrDownloadFile],
 			Error:   err.Error(),
 		})
 		return
@@ -98,10 +100,10 @@ func downloadFile(c *gin.Context) {
 	defer file.Close()
 	_, err = io.Copy(c.Writer, file)
 	if err != nil {
-		c.JSON(http.StatusOK, baseResponse{
+		c.JSON(http.StatusOK, BaseResponse{
 			Status:  false,
 			Code:    apicode.ErrDownloadFile,
-			Message: apicode.MapZH[apicode.ErrDownloadFile],
+			Message: wsgin.APICodeMapZH[apicode.ErrDownloadFile],
 			Error:   err.Error(),
 		})
 	}

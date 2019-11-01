@@ -6,23 +6,28 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"welfare-sign/internal/apicode"
 	"welfare-sign/internal/model"
 	"welfare-sign/internal/pkg/jwt"
 	"welfare-sign/internal/pkg/log"
 	"welfare-sign/internal/pkg/util"
+	"welfare-sign/internal/pkg/wsgin"
 )
 
 // AddMerchant 新增商户
-func (s *Service) AddMerchant(ctx context.Context, vo model.MerchantVO) error {
+func (s *Service) AddMerchant(ctx context.Context, vo *model.MerchantVO) (wsgin.APICode, error) {
 	var data model.Merchant
-	if err := util.StructCopy(&data, &vo); err != nil {
-		return err
+	if err := util.StructCopy(&data, vo); err != nil {
+		return apicode.ErrModelCreate, err
 	}
-	return s.dao.CreateMerchant(ctx, data)
+	if err := s.dao.CreateMerchant(ctx, data); err != nil {
+		return apicode.ErrModelCreate, err
+	}
+	return wsgin.APICodeSuccess, nil
 }
 
 // GetMerchantList 获取商户列表
-func (s *Service) GetMerchantList(ctx context.Context, vo model.MerchantListVO) ([]*model.Merchant, error) {
+func (s *Service) GetMerchantList(ctx context.Context, vo *model.MerchantListVO) ([]*model.Merchant, wsgin.APICode, error) {
 	query := make(map[string]interface{})
 	if vo.StoreName != "" {
 		query["store_name"] = vo.StoreName
@@ -40,79 +45,84 @@ func (s *Service) GetMerchantList(ctx context.Context, vo model.MerchantListVO) 
 		vo.PageSize = 10
 	}
 
-	return s.dao.ListMerchant(ctx, query, vo.PageNo, vo.PageSize)
+	merchants, err := s.dao.ListMerchant(ctx, query, vo.PageNo, vo.PageSize)
+	if err != nil {
+		return nil, apicode.ErrGetListData, err
+	}
+	return merchants, wsgin.APICodeSuccess, nil
 }
 
 // MerchantLogin 商家登录
-func (s *Service) MerchantLogin(ctx context.Context, vo model.MerchantLoginVO) (string, error) {
+func (s *Service) MerchantLogin(ctx context.Context, vo *model.MerchantLoginVO) (string, wsgin.APICode, error) {
 	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"contact_phone": vo.ContactPhone})
 	if err != nil {
 		log.Info(ctx, "MerchantLogin.FindMerchant() error", zap.Error(err))
-		return "", err
+		return "", apicode.ErrLogin, err
 	}
 	if err := s.ValidateCode(ctx, vo.ContactPhone, vo.Code); err != nil {
 		log.Info(ctx, "MerchantLogin.ValidateCode() error", zap.Error(err))
-		return "", err
+		return "", apicode.ErrLogin, err
 	}
-	return jwt.CreateToken(merchant.ContactName, merchant.ContactPhone)
+	token, err := jwt.CreateToken(merchant.ID, merchant.ContactName, merchant.ContactPhone)
+	if err != nil {
+		log.Info(ctx, "MerchantLogin.CreateToken() error", zap.Error(err))
+		return "", apicode.ErrLogin, err
+	}
+	return token, wsgin.APICodeSuccess, nil
 }
 
 // GetMerchantDetailBySelfAccessToken 获取商户详情
-func (s *Service) GetMerchantDetailBySelfAccessToken(ctx context.Context, token string) (*model.Merchant, error) {
-	tokenParames, err := jwt.ParseToken(token)
+func (s *Service) GetMerchantDetailBySelfAccessToken(ctx context.Context, merchantId uint64) (*model.Merchant, wsgin.APICode, error) {
+	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"id": merchantId})
 	if err != nil {
-		return nil, err
+		return nil, apicode.ErrDetail, err
 	}
-	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"contact_phone": tokenParames.Mobile})
-	if err != nil {
-		return nil, err
-	}
-	return merchant, nil
+	return merchant, wsgin.APICodeSuccess, nil
 }
 
 // GetWriteOff 获取核销页面数据
-func (s *Service) GetWriteOff(ctx context.Context, vo model.MerchantWriteOffVO) (*model.MerchantWriteOffRespVO, error) {
+func (s *Service) GetWriteOff(ctx context.Context, merchantId, customerId uint64) (*model.MerchantWriteOffRespVO, wsgin.APICode, error) {
 	var resp model.MerchantWriteOffRespVO
 
-	tokenParames, err := jwt.ParseToken(vo.AccessToken)
-	if err != nil {
-		return nil, err
-	}
-	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"contact_phone": tokenParames.Mobile})
+	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"id": merchantId})
 	if err != nil {
 		log.Info(ctx, "GetWriteOff.FindMerchant() error", zap.Error(err))
-		return nil, err
+		return nil, apicode.ErrWriteOff, err
 	}
-	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{"id": vo.CustomerID})
+	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{"id": customerId})
 	if err != nil {
 		log.Info(ctx, "GetWriteOff.FindCustomer() error", zap.Error(err))
-		return nil, err
+		return nil, apicode.ErrWriteOff, err
 	}
 	issueRecord, err := s.dao.FindIssueRecord(ctx, map[string]interface{}{
-		"merchant_id": merchant.ID,
-		"customer_id": customer.ID,
+		"merchant_id": merchantId,
+		"customer_id": customerId,
 	})
 	if err != nil {
 		log.Info(ctx, "GetWriteOff.FindIssueRecord() error", zap.Error(err))
-		return nil, nil
+		return nil, apicode.ErrWriteOff, err
 	}
 	resp.Merchant = merchant
 	resp.Customer = customer
 	resp.IssueRecord = issueRecord
-	return &resp, nil
+	return &resp, wsgin.APICodeSuccess, nil
 }
 
 // ExecWriteOff 执行核销
-func (s *Service) ExecWriteOff(ctx context.Context, vo model.MerchantExecWriteOffVO) (*model.MerchantWriteOffRespVO, error) {
-	resp, err := s.GetWriteOff(ctx, model.MerchantWriteOffVO{AccessToken: vo.AccessToken, CustomerID: vo.CustomerID})
+func (s *Service) ExecWriteOff(ctx context.Context, vo *model.MerchantExecWriteOffVO) (*model.MerchantWriteOffRespVO, wsgin.APICode, error) {
+	resp, code, err := s.GetWriteOff(ctx, vo.MerchantID, vo.CustomerID)
 	if err != nil {
-		return nil, err
+		return nil, code, err
 	}
 	if (resp.IssueRecord.TotalReceive - resp.IssueRecord.Received) < vo.Num {
-		return nil, errors.New("核销数目不正确")
+		return nil, apicode.ErrExecWriteOff, errors.New("核销数目不正确")
 	}
 	hasRece := resp.IssueRecord.Received + vo.Num
 	totalRece := resp.Merchant.Received + vo.Num
 	resp.IssueRecord.Received = resp.IssueRecord.TotalReceive - hasRece
-	return resp, s.dao.EcecWriteOff(ctx, resp.Merchant.ID, resp.Customer.ID, hasRece, totalRece)
+	err = s.dao.EcecWriteOff(ctx, resp.Merchant.ID, resp.Customer.ID, hasRece, totalRece)
+	if err != nil {
+		return nil, apicode.ErrExecWriteOff, errors.New("核销数目不正确")
+	}
+	return resp, wsgin.APICodeSuccess, nil
 }
