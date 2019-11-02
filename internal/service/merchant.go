@@ -27,7 +27,7 @@ func (s *Service) AddMerchant(ctx context.Context, vo *model.MerchantVO) (wsgin.
 }
 
 // GetMerchantList 获取商户列表
-func (s *Service) GetMerchantList(ctx context.Context, vo *model.MerchantListVO) ([]*model.Merchant, wsgin.APICode, error) {
+func (s *Service) GetMerchantList(ctx context.Context, vo *model.MerchantListVO) ([]*model.Merchant, int, wsgin.APICode, error) {
 	query := make(map[string]interface{})
 	if vo.StoreName != "" {
 		query["store_name"] = vo.StoreName
@@ -45,11 +45,11 @@ func (s *Service) GetMerchantList(ctx context.Context, vo *model.MerchantListVO)
 		vo.PageSize = 10
 	}
 
-	merchants, err := s.dao.ListMerchant(ctx, query, vo.PageNo, vo.PageSize)
+	merchants, total, err := s.dao.ListMerchant(ctx, query, vo.PageNo, vo.PageSize)
 	if err != nil {
-		return nil, apicode.ErrGetListData, err
+		return nil, total, apicode.ErrGetListData, err
 	}
-	return merchants, wsgin.APICodeSuccess, nil
+	return merchants, total, wsgin.APICodeSuccess, nil
 }
 
 // MerchantLogin 商家登录

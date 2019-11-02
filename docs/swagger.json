@@ -927,6 +927,10 @@
                     "description": "业务状态码",
                     "type": "string"
                 },
+                "current": {
+                    "description": "当前页页码",
+                    "type": "integer"
+                },
                 "data": {
                     "type": "array",
                     "items": {
@@ -944,6 +948,10 @@
                 "status": {
                     "description": "状态",
                     "type": "boolean"
+                },
+                "total": {
+                    "description": "总数量",
+                    "type": "integer"
                 }
             }
         },
@@ -1034,6 +1042,10 @@
                     "description": "业务状态码",
                     "type": "string"
                 },
+                "current": {
+                    "description": "当前页页码",
+                    "type": "integer"
+                },
                 "data": {
                     "type": "array",
                     "items": {
@@ -1051,6 +1063,10 @@
                 "status": {
                     "description": "状态",
                     "type": "boolean"
+                },
+                "total": {
+                    "description": "总数量",
+                    "type": "integer"
                 }
             }
         },

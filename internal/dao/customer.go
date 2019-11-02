@@ -7,10 +7,15 @@ import (
 )
 
 // ListCustomer get customer list
-func (d *dao) ListCustomer(ctx context.Context, query interface{}, pageNo, pageSize int) ([]*model.Customer, error) {
+func (d *dao) ListCustomer(ctx context.Context, query interface{}, pageNo, pageSize int) ([]*model.Customer, int, error) {
 	var customers []*model.Customer
+	total := 0
 	err := d.db.Where(query).Limit(pageSize).Offset((pageNo - 1) * pageSize).Order("created_at desc").Find(&customers).Error
-	return customers, err
+	if err != nil {
+		return nil, total, err
+	}
+	err = d.db.Where(query).Find(&model.Customer{}).Count(&total).Error
+	return customers, total, err
 }
 
 // FindCustomer 获取客户详情

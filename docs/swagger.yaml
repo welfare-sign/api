@@ -285,6 +285,9 @@ definitions:
       code:
         description: 业务状态码
         type: string
+      current:
+        description: 当前页页码
+        type: integer
       data:
         items:
           $ref: '#/definitions/model.Customer'
@@ -298,6 +301,9 @@ definitions:
       status:
         description: 状态
         type: boolean
+      total:
+        description: 总数量
+        type: integer
     type: object
   server.ExecWriteOffRequest:
     properties:
@@ -361,6 +367,9 @@ definitions:
       code:
         description: 业务状态码
         type: string
+      current:
+        description: 当前页页码
+        type: integer
       data:
         items:
           $ref: '#/definitions/model.Merchant'
@@ -374,6 +383,9 @@ definitions:
       status:
         description: 状态
         type: boolean
+      total:
+        description: 总数量
+        type: integer
     type: object
   server.MerchantLoginResponse:
     properties:

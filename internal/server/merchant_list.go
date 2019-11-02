@@ -20,7 +20,7 @@ type MerchantListRequest struct {
 
 // MerchantListResponse .
 type MerchantListResponse struct {
-	wsgin.BaseResponse
+	wsgin.BasePagingResponse
 
 	Data []*model.Merchant `json:"data"`
 }
@@ -52,7 +52,7 @@ func (r *MerchantListRequest) Extract(c *gin.Context) (code wsgin.APICode, err e
 func (r *MerchantListRequest) Exec(ctx context.Context) interface{} {
 	resp := MerchantListResponse{}
 
-	data, code, err := svc.GetMerchantList(ctx, &model.MerchantListVO{
+	data, total, code, err := svc.GetMerchantList(ctx, &model.MerchantListVO{
 		StoreName:    r.StoreName,
 		ContactName:  r.ContactName,
 		ContactPhone: r.ContactPhone,
@@ -61,5 +61,7 @@ func (r *MerchantListRequest) Exec(ctx context.Context) interface{} {
 	})
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
+	resp.Total = total
+	resp.Current = r.PageNo
 	return resp
 }

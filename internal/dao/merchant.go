@@ -14,10 +14,15 @@ func (d *dao) CreateMerchant(ctx context.Context, data model.Merchant) error {
 
 // ListMerchant get merchant list
 // pageNo >= 1
-func (d *dao) ListMerchant(ctx context.Context, query interface{}, pageNo, pageSize int) ([]*model.Merchant, error) {
+func (d *dao) ListMerchant(ctx context.Context, query interface{}, pageNo, pageSize int) ([]*model.Merchant, int, error) {
 	var merchants []*model.Merchant
+	total := 0
 	err := d.db.Where(query).Limit(pageSize).Offset((pageNo - 1) * pageSize).Order("created_at desc").Find(&merchants).Error
-	return merchants, err
+	if err != nil {
+		return nil, total, err
+	}
+	err = d.db.Where(query).Find(&model.Merchant{}).Count(&total).Error
+	return merchants, total, err
 }
 
 // FindMerchant 获取商家详情

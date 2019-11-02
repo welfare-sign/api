@@ -9,7 +9,7 @@ import (
 )
 
 // GetCustomerList 获取客户列表
-func (s *Service) GetCustomerList(ctx context.Context, vo *model.CustomerListVO) ([]*model.Customer, wsgin.APICode, error) {
+func (s *Service) GetCustomerList(ctx context.Context, vo *model.CustomerListVO) ([]*model.Customer, int, wsgin.APICode, error) {
 	query := make(map[string]interface{})
 	if vo.Name != "" {
 		query["name"] = vo.Name
@@ -24,11 +24,11 @@ func (s *Service) GetCustomerList(ctx context.Context, vo *model.CustomerListVO)
 		vo.PageSize = 10
 	}
 
-	customers, err := s.dao.ListCustomer(ctx, query, vo.PageNo, vo.PageSize)
+	customers, total, err := s.dao.ListCustomer(ctx, query, vo.PageNo, vo.PageSize)
 	if err != nil {
-		return nil, apicode.ErrGetListData, err
+		return nil, total, apicode.ErrGetListData, err
 	}
-	return customers, wsgin.APICodeSuccess, nil
+	return customers, total, wsgin.APICodeSuccess, nil
 }
 
 // GetCustomerDetail 获取客户详情

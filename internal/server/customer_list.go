@@ -19,7 +19,7 @@ type CustomerListRequest struct {
 
 // CustomerListResponse .
 type CustomerListResponse struct {
-	wsgin.BaseResponse
+	wsgin.BasePagingResponse
 
 	Data []*model.Customer `json:"data"`
 }
@@ -50,7 +50,7 @@ func (r *CustomerListRequest) Extract(c *gin.Context) (code wsgin.APICode, err e
 func (r *CustomerListRequest) Exec(ctx context.Context) interface{} {
 	resp := CustomerListResponse{}
 
-	data, code, err := svc.GetCustomerList(ctx, &model.CustomerListVO{
+	data, total, code, err := svc.GetCustomerList(ctx, &model.CustomerListVO{
 		Name:     r.Name,
 		Mobile:   r.Mobile,
 		PageNo:   r.PageNo,
@@ -58,5 +58,7 @@ func (r *CustomerListRequest) Exec(ctx context.Context) interface{} {
 	})
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
+	resp.Total = total
+	resp.Current = r.PageNo
 	return resp
 }
