@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 
+	"welfare-sign/internal/dao/mysql"
 	"welfare-sign/internal/model"
 )
 
@@ -18,11 +19,13 @@ func (d *dao) ListMerchant(ctx context.Context, query interface{}, pageNo, pageS
 	var merchants []*model.Merchant
 	total := 0
 	err := d.db.Where(query).Limit(pageSize).Offset((pageNo - 1) * pageSize).Order("created_at desc").Find(&merchants).Error
-	if err != nil {
-		return nil, total, err
+	if mysql.IsError(err) {
+		return merchants, total, err
 	}
-	err = d.db.Where(query).Find(&model.Merchant{}).Count(&total).Error
-	return merchants, total, err
+	if err := d.db.Where(query).Find(&model.Merchant{}).Count(&total).Error; mysql.IsError(err) {
+		return merchants, total, err
+	}
+	return merchants, total, nil
 }
 
 // FindMerchant 获取商家详情

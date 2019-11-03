@@ -1,6 +1,8 @@
 package mysql
 
 import (
+	"database/sql"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/pkg/errors"
@@ -19,4 +21,9 @@ func New() *gorm.DB {
 	db.SingularTable(true)
 	db.AutoMigrate(&model.CheckinRecord{}, &model.Customer{}, &model.IssueRecord{}, &model.Merchant{}, &model.User{})
 	return db
+}
+
+// IsError 是否是真的错误，并不是未找到数据
+func IsError(err error) bool {
+	return err != nil && err != gorm.ErrRecordNotFound && err != sql.ErrNoRows
 }

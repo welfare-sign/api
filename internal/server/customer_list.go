@@ -14,7 +14,7 @@ type CustomerListRequest struct {
 	wsgin.AuthPagingRequest
 
 	Name   string `json:"name" form:"name" example:"用户名"`
-	Mobile string `json:"mobile" form:"mobile" binding:"mobile" example:"联系电话"`
+	Mobile string `json:"mobile" form:"mobile" binding:"omitempty,mobile" example:"联系电话"`
 }
 
 // CustomerListResponse .
