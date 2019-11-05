@@ -38,6 +38,9 @@ func New(s *service.Service) (srv *http.Server) {
 
 func initRouter(e *gin.Engine) {
 	e.GET("/health", ping)
+	// 检查微信 服务器签名
+	e.StaticFile("/favicon.ico", "./public/favicon.ico")
+	e.StaticFile("/MP_verify_6IOxVtGiF56arfjR.txt", "./public/MP_verify_6IOxVtGiF56arfjR.txt")
 
 	v1 := e.Group("/v1")
 

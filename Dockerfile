@@ -6,6 +6,7 @@ WORKDIR /app
 COPY ./bin/app /app/app
 COPY ./docs /app/docs/
 COPY ./config /app/config/
+COPY ./public /app/public/
 
 EXPOSE 8080
 
