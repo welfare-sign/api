@@ -4,8 +4,8 @@ package model
 type CheckinRecord struct {
 	Base
 
-	CustomerId            uint64 `json:"customer_id" gorm:"not null"`               // 签到人ID
-	HelpCheckinCustomerId uint64 `json:"help_checkin_customer_id" gorm:"default:0"` // 帮签人ID
+	CustomerID            uint64 `json:"customer_id" gorm:"not null"`               // 签到人ID
+	HelpCheckinCustomerID uint64 `json:"help_checkin_customer_id" gorm:"default:0"` // 帮签人ID
 	Day                   uint64 `json:"day" gorm:"not null"`                       // 签到第几天
 }
 

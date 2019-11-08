@@ -116,21 +116,21 @@ func (l *logger) log(ctx context.Context, level zapcore.Level, msg string, f ...
 	fields := GetFieldsWithPool()
 	defer ResetFields(fields)
 
-	clientIp := ctx.Value(RequestClientIPKey)
-	if clientIp != nil {
-		if ip, ok := clientIp.(string); ok {
+	clientIP := ctx.Value(RequestClientIPKey)
+	if clientIP != nil {
+		if ip, ok := clientIP.(string); ok {
 			fields = append(fields, zap.String("client_ip", ip))
 		}
 	}
-	reqId := ""
+	_reqID := ""
 	reqID := ctx.Value(RequestIDKey)
 	if reqID != nil {
-		reqId = reqID.(string)
+		_reqID = reqID.(string)
 	}
 
 	bf := bytes.Buffer{}
 	bf.WriteByte('{')
-	f = append(f, zap.String(RequestIDKey, reqId))
+	f = append(f, zap.String(RequestIDKey, _reqID))
 
 	jbf, err := jsonEncoder.EncodeEntry(entry, f)
 	if err != nil {
@@ -237,25 +237,25 @@ func NewLogger(logpath string) Logger {
 	// 配置普通日志文件记录
 	cores = append(cores, zapcore.NewCore(jsonEncoder, zapcore.AddSync(l.FileWriter), highPriority))
 	// 控制台输出
-	cores = append(cores, zapcore.NewCore(jsonEncoder, &JsonColorOut{}, highPriority))
+	cores = append(cores, zapcore.NewCore(jsonEncoder, &JSONColorOut{}, highPriority))
 
 	l.Logger = zap.New(zapcore.NewTee(cores...), zap.AddStacktrace(zap.ErrorLevel))
 
 	return l
 }
 
-// JsonColorOut .
-type JsonColorOut struct {
+// JSONColorOut .
+type JSONColorOut struct {
 	count int
 }
 
-func (j *JsonColorOut) Write(p []byte) (n int, err error) {
+func (j *JSONColorOut) Write(p []byte) (n int, err error) {
 	j.count++
 	return fmt.Printf("%d\n%s\n", j.count, pretty.Color(pretty.Pretty(p), pretty.TerminalStyle))
 }
 
 // Sync .
-func (j *JsonColorOut) Sync() error {
+func (j *JSONColorOut) Sync() error {
 	return nil
 }
 

@@ -13,7 +13,7 @@ import (
 type CustomerDetailRequest struct {
 	wsgin.AuthRequest
 
-	CustomerId uint64 `json:"customer_id" form:"customer_id" example:"客户id"`
+	CustomerID uint64 `json:"customer_id" form:"customer_id" example:"客户id"`
 }
 
 // CustomerDetailResponse .
@@ -46,11 +46,11 @@ func (r *CustomerDetailRequest) Extract(c *gin.Context) (code wsgin.APICode, err
 func (r *CustomerDetailRequest) Exec(ctx context.Context) interface{} {
 	resp := CustomerDetailResponse{}
 
-	customerId := r.TokenParames.Uid
-	if r.CustomerId != 0 {
-		customerId = r.CustomerId
+	customerID := r.TokenParames.UID
+	if r.CustomerID != 0 {
+		customerID = r.CustomerID
 	}
-	data, code, err := svc.GetCustomerDetail(ctx, customerId)
+	data, code, err := svc.GetCustomerDetail(ctx, customerID)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp

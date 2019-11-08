@@ -13,7 +13,7 @@ import (
 type AuthRequest struct {
 	BaseRequest
 
-	TokenParames *jwt.TokenParames
+	TokenParames *jwt.TokenParames `json:"-"`
 }
 
 // Extract .

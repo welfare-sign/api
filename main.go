@@ -7,13 +7,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"go.uber.org/zap"
-
 	"welfare-sign/internal/pkg/log"
 	"welfare-sign/internal/pkg/util"
 	"welfare-sign/internal/server"
 	"welfare-sign/internal/service"
+
+	"go.uber.org/zap"
 )
 
 // @title 福利签API文档

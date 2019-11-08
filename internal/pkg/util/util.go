@@ -81,7 +81,7 @@ func IsMobile(mobile string) bool {
 // GenerateCode 生成验证码随机数
 func GenerateCode() (code string) {
 	s := rand.NewSource(time.Now().UnixNano())
-	for i := 0; i < viper.GetInt(config.KeyYuanpianLength); i++ {
+	for i := 0; i < viper.GetInt(config.KeySMSLength); i++ {
 		code += strconv.Itoa(rand.New(s).Intn(10))
 	}
 	return

@@ -16,7 +16,7 @@ var sign = []byte(viper.GetString(config.KeyJWTSign))
 type TokenParames struct {
 	jwt.StandardClaims
 
-	Uid    uint64 // uid
+	UID    uint64 // uid
 	Name   string // 姓名
 	Mobile string // 手机号
 }
@@ -24,7 +24,7 @@ type TokenParames struct {
 // CreateToken 生成Token
 func CreateToken(uid uint64, name, mobile string) (string, error) {
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenParames{
-		Uid:    uid,
+		UID:    uid,
 		Name:   name,
 		Mobile: mobile,
 		StandardClaims: jwt.StandardClaims{

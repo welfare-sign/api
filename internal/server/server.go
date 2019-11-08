@@ -11,7 +11,7 @@ import (
 	"welfare-sign/internal/pkg/wsgin"
 	"welfare-sign/internal/service"
 
-	_ "welfare-sign/docs"
+	_ "welfare-sign/docs" // swagger docs
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -30,7 +30,7 @@ func New(s *service.Service) (srv *http.Server) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	srv = &http.Server{
-		Addr:    viper.GetString(config.KeyHttpAddr),
+		Addr:    viper.GetString(config.KeyHTTPAddr),
 		Handler: router,
 	}
 	return
@@ -74,6 +74,10 @@ func initRouter(e *gin.Engine) {
 		customers.GET("", wsgin.ProcessExec(&CustomerListRequest{}))
 		customers.GET("/detail", wsgin.ProcessExec(&CustomerDetailRequest{}))
 		customers.GET("/checkin_record", wsgin.ProcessExec(&CheckinRecordRequest{}))
+		customers.POST("/checkin_record", wsgin.ProcessExec(&ExecCheckinRecordRequest{}))
+		customers.GET("/qrcode", wsgin.ProcessExec(&QRCodeRequest{}))
+		customers.POST("/login", wsgin.ProcessExec(&CustomerLoginRequest{}))
+		customers.GET("/near_merchant", wsgin.ProcessExec(&NearMerchantRequest{}))
 	}
 
 	// 验证码

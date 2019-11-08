@@ -43,7 +43,7 @@ func (r *CheckinRecordRequest) Extract(c *gin.Context) (code wsgin.APICode, err 
 func (r *CheckinRecordRequest) Exec(ctx context.Context) interface{} {
 	resp := CheckinRecordResponse{}
 
-	data, code, err := svc.GetCustomerCheckinRecord(ctx, r.TokenParames.Uid)
+	data, code, err := svc.GetCustomerCheckinRecord(ctx, r.TokenParames.UID)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp

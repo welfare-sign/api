@@ -13,7 +13,7 @@ import (
 type MerchantDetailRequest struct {
 	wsgin.AuthRequest
 
-	MerchantId uint64 `json:"merchant_id" form:"merchant_id" example:"商户ID"`
+	MerchantID uint64 `json:"merchant_id" form:"merchant_id" example:"商户ID"`
 }
 
 // MerchantDetailResponse .
@@ -46,11 +46,11 @@ func (r *MerchantDetailRequest) Extract(c *gin.Context) (code wsgin.APICode, err
 func (r *MerchantDetailRequest) Exec(ctx context.Context) interface{} {
 	resp := MerchantDetailResponse{}
 
-	merchantId := r.TokenParames.Uid
-	if r.MerchantId != 0 {
-		merchantId = r.MerchantId
+	merchantID := r.TokenParames.UID
+	if r.MerchantID != 0 {
+		merchantID = r.MerchantID
 	}
-	data, code, err := svc.GetMerchantDetailBySelfAccessToken(ctx, merchantId)
+	data, code, err := svc.GetMerchantDetailBySelfAccessToken(ctx, merchantID)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp

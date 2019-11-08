@@ -38,10 +38,19 @@ definitions:
     type: object
   model.Customer:
     properties:
+      city:
+        description: 微信用户所在区
+        type: string
+      country:
+        description: 微信用户所在国家
+        type: string
       created_at:
         type: string
       created_by:
         type: integer
+      headimgurl:
+        description: 微信用户头像
+        type: string
       id:
         type: integer
       last_checkin_time:
@@ -53,12 +62,36 @@ definitions:
       name:
         description: 称呼
         type: string
+      nickname:
+        description: 微信用户昵称
+        type: string
+      open_id:
+        description: 微信用户openid
+        type: string
+      province:
+        description: 微信用户所在市
+        type: string
+      sex:
+        description: 微信用户性别
+        type: integer
       status:
         type: string
       updated_at:
         type: string
       updated_by:
         type: integer
+    type: object
+  model.CustomerLoginResp:
+    properties:
+      checkin_record_list:
+        description: 用户签到信息
+        items:
+          $ref: '#/definitions/model.CheckinRecord'
+        type: array
+      customer:
+        $ref: '#/definitions/model.Customer'
+        description: 用户信息
+        type: object
     type: object
   model.IssueRecord:
     properties:
@@ -182,9 +215,6 @@ definitions:
       poster:
         description: 商户海报
         type: string
-      received:
-        description: 已领礼品数量
-        type: integer
       store_avatar:
         description: 店铺头像
         type: string
@@ -305,11 +335,48 @@ definitions:
         description: 总数量
         type: integer
     type: object
-  server.ExecWriteOffRequest:
+  server.CustomerLoginResponse:
     properties:
-      tokenParames:
-        $ref: '#/definitions/jwt.TokenParames'
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.CustomerLoginResp'
         type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ExecCheckinRecordRequest:
+    properties:
+      day:
+        description: 签到第天数
+        type: integer
+    required:
+    - day
+    type: object
+  server.ExecCheckinRecordResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ExecWriteOffRequest:
     type: object
   server.ExecWriteOffResponse:
     properties:
@@ -328,6 +395,12 @@ definitions:
       status:
         description: 状态
         type: boolean
+    type: object
+  server.MerchantAddRequest:
+    properties:
+      merchant:
+        $ref: '#/definitions/model.MerchantVO'
+        type: object
     type: object
   server.MerchantAddResponse:
     properties:
@@ -395,6 +468,25 @@ definitions:
       data:
         description: access token
         type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.NearMerchantResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/model.Merchant'
+        type: array
       error:
         description: Error信息
         type: string
@@ -515,6 +607,30 @@ paths:
       summary: 获取签到记录
       tags:
       - 客户
+    post:
+      consumes:
+      - application/json
+      description: customer exec checkin record
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.ExecCheckinRecordRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ExecCheckinRecordResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户执行签到
+      tags:
+      - 客户
   /customers/detail:
     get:
       consumes:
@@ -535,6 +651,80 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取客户详情
+      tags:
+      - 客户
+  /customers/login:
+    post:
+      consumes:
+      - application/json
+      description: customer login
+      parameters:
+      - description: 微信回调code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.CustomerLoginResponse'
+      summary: 客户登录
+      tags:
+      - 客户
+  /customers/near_merchant:
+    get:
+      consumes:
+      - application/json
+      description: get customer near merchant
+      parameters:
+      - description: 经度
+        in: query
+        name: lon
+        required: true
+        type: integer
+      - description: 维度
+        in: query
+        name: lat
+        required: true
+        type: integer
+      - description: 距离多少公里内，默认10
+        in: query
+        name: distince
+        type: integer
+      - description: 返回数量，默认4个
+        in: query
+        name: num
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.NearMerchantResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户附近最近的几家店铺
+      tags:
+      - 客户
+  /customers/qrcode:
+    get:
+      consumes:
+      - application/json
+      description: get customer qrcode
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取客户所属二维码
       tags:
       - 客户
   /files/download:
@@ -641,7 +831,7 @@ paths:
         name: args
         required: true
         schema:
-          $ref: '#/definitions/model.MerchantVO'
+          $ref: '#/definitions/server.MerchantAddRequest'
           type: object
       produces:
       - application/json

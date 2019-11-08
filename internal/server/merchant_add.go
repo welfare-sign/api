@@ -38,7 +38,7 @@ func (r *MerchantAddRequest) Extract(c *gin.Context) (code wsgin.APICode, err er
 // @Tags 商户
 // @Accept json
 // @Produce json
-// @Param args body model.MerchantVO true "参数"
+// @Param args body server.MerchantAddRequest true "参数"
 // @Success 200 {object} server.MerchantAddResponse "{"status":true}"
 // @Router /merchants [post]
 func (r *MerchantAddRequest) Exec(ctx context.Context) interface{} {

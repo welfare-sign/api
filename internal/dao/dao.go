@@ -24,9 +24,13 @@ type Dao interface {
 	FindMerchant(ctx context.Context, query interface{}) (*model.Merchant, error)
 	FindCustomer(ctx context.Context, query interface{}) (*model.Customer, error)
 	FindIssueRecord(ctx context.Context, query interface{}) (*model.IssueRecord, error)
-	EcecWriteOff(ctx context.Context, merchantId, customerId, hasRece, totalRece uint64) error
-	ListCheckinRecord(ctx context.Context, query interface{}) ([]*model.CheckinRecord, error)
-	InitCheckinRecords(ctx context.Context, customerId uint64) ([]*model.CheckinRecord, error)
+	EcecWriteOff(ctx context.Context, merchantID, customerID, hasRece, totalRece uint64) error
+	ListCheckinRecord(ctx context.Context, query interface{}, args ...interface{}) ([]*model.CheckinRecord, error)
+	InitCheckinRecords(ctx context.Context, customerID uint64) ([]*model.CheckinRecord, error)
+	UpsertCustomer(ctx context.Context, data *model.WxUserResp) (*model.Customer, error)
+	NearMerchant(ctx context.Context, data *model.NearMerchantVO) ([]*model.Merchant, error)
+	FindCheckinRecord(ctx context.Context, query interface{}) (*model.CheckinRecord, error)
+	ExecCheckin(ctx context.Context, customerID, day uint64) error
 }
 
 // dao dao.
@@ -35,10 +39,11 @@ type dao struct {
 	cache *redis.Client
 }
 
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
+func checkErr(err error) error {
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
 	}
+	return nil
 }
 
 // New new a dao and return.

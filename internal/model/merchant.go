@@ -30,7 +30,7 @@ type MerchantVO struct {
 	Poster       string  `json:"poster"`                           // 商户海报
 	ContactName  string  `json:"contact_name"`                     // 联系人
 	ContactPhone string  `json:"contact_phone" binding:"required"` // 联系人电话
-	Received     uint64  `json:"received"`                         // 已领礼品数量
+	Received     uint64  `json:"-"`                                // 已领礼品数量
 	TotalReceive uint64  `json:"total_receive" binding:"required"` // 该店礼品一共可领取总数
 	CheckinDays  uint64  `json:"checkin_days"`                     // 签到天数多少天可领取礼品
 	CheckinNum   uint64  `json:"checkin_num"`                      // 达到指定签到天数后，可领取的礼品数量
@@ -69,4 +69,12 @@ type MerchantExecWriteOffVO struct {
 	MerchantID uint64
 	CustomerID uint64
 	Num        uint64
+}
+
+// NearMerchantVO 附近商家
+type NearMerchantVO struct {
+	Lon      float64 // 经度
+	Lat      float64 // 维度
+	Distince float64 // 距离多少公里内
+	Num      int     // 返回数量
 }

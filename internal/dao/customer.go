@@ -2,9 +2,13 @@ package dao
 
 import (
 	"context"
+	"time"
+
+	"github.com/jinzhu/gorm"
 
 	"welfare-sign/internal/dao/mysql"
 	"welfare-sign/internal/model"
+	"welfare-sign/internal/pkg/util"
 )
 
 // ListCustomer get customer list
@@ -25,4 +29,24 @@ func (d *dao) FindCustomer(ctx context.Context, query interface{}) (*model.Custo
 	var customer model.Customer
 	err := d.db.Where(query).First(&customer).Error
 	return &customer, err
+}
+
+// UpsertCustomer update or insert customer
+func (d *dao) UpsertCustomer(ctx context.Context, data *model.WxUserResp) (customer *model.Customer, err error) {
+	customer, err = d.FindCustomer(ctx, map[string]interface{}{"open_id": data.OpenID})
+	if checkErr(err) != nil {
+		return
+	}
+	if err == gorm.ErrRecordNotFound {
+		var c model.Customer
+		util.StructCopy(&c, data)
+		c.SetDefaultAttr()
+		if err := d.db.Create(c).Error; err != nil {
+			return nil, err
+		}
+		return d.FindCustomer(ctx, map[string]interface{}{"open_id": data.OpenID})
+	}
+	customer.UpdatedAt = time.Now()
+	util.StructCopy(&customer, data)
+	return customer, d.db.Save(customer).Error
 }

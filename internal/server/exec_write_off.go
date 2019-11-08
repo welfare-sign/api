@@ -48,7 +48,7 @@ func (r *ExecWriteOffRequest) Exec(ctx context.Context) interface{} {
 	resp := ExecWriteOffResponse{}
 
 	data, code, err := svc.ExecWriteOff(ctx, &model.MerchantExecWriteOffVO{
-		MerchantID: r.TokenParames.Uid,
+		MerchantID: r.TokenParames.UID,
 		CustomerID: r.CustomerID,
 		Num:        r.Num,
 	})

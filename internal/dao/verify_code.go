@@ -14,7 +14,7 @@ const KeyCacheSMSCodePrefix = "welfare:sms:"
 
 // SaveSMSCode 保存验证码，后续验证使用
 func (d *dao) SaveSMSCode(ctx context.Context, mobile, code string) error {
-	return d.cache.Set(KeyCacheSMSCodePrefix+mobile, code, viper.GetDuration(config.KeyYuanpianExpire)*time.Minute).Err()
+	return d.cache.Set(KeyCacheSMSCodePrefix+mobile, code, viper.GetDuration(config.KeySMSExpire)*time.Minute).Err()
 }
 
 // GetSMSCode 验证传入的手机，获取验证码

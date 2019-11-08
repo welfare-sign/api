@@ -17,6 +17,13 @@ import (
 // AddMerchant 新增商户
 func (s *Service) AddMerchant(ctx context.Context, vo *model.MerchantVO) (wsgin.APICode, error) {
 	var data model.Merchant
+	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"contact_phone": vo.ContactPhone})
+	if err != nil {
+		return apicode.ErrModelCreate, err
+	}
+	if merchant.ContactPhone != "" {
+		return apicode.ErrMobileExists, err
+	}
 	if err := util.StructCopy(&data, vo); err != nil {
 		return apicode.ErrModelCreate, err
 	}
@@ -72,8 +79,8 @@ func (s *Service) MerchantLogin(ctx context.Context, vo *model.MerchantLoginVO) 
 }
 
 // GetMerchantDetailBySelfAccessToken 获取商户详情
-func (s *Service) GetMerchantDetailBySelfAccessToken(ctx context.Context, merchantId uint64) (*model.Merchant, wsgin.APICode, error) {
-	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"id": merchantId})
+func (s *Service) GetMerchantDetailBySelfAccessToken(ctx context.Context, merchantID uint64) (*model.Merchant, wsgin.APICode, error) {
+	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"id": merchantID})
 	if err != nil {
 		return nil, apicode.ErrDetail, err
 	}
@@ -81,22 +88,22 @@ func (s *Service) GetMerchantDetailBySelfAccessToken(ctx context.Context, mercha
 }
 
 // GetWriteOff 获取核销页面数据
-func (s *Service) GetWriteOff(ctx context.Context, merchantId, customerId uint64) (*model.MerchantWriteOffRespVO, wsgin.APICode, error) {
+func (s *Service) GetWriteOff(ctx context.Context, merchantID, customerID uint64) (*model.MerchantWriteOffRespVO, wsgin.APICode, error) {
 	var resp model.MerchantWriteOffRespVO
 
-	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"id": merchantId})
+	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{"id": merchantID})
 	if err != nil {
 		log.Info(ctx, "GetWriteOff.FindMerchant() error", zap.Error(err))
 		return nil, apicode.ErrWriteOff, err
 	}
-	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{"id": customerId})
+	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{"id": customerID})
 	if err != nil {
 		log.Info(ctx, "GetWriteOff.FindCustomer() error", zap.Error(err))
 		return nil, apicode.ErrWriteOff, err
 	}
 	issueRecord, err := s.dao.FindIssueRecord(ctx, map[string]interface{}{
-		"merchant_id": merchantId,
-		"customer_id": customerId,
+		"merchant_id": merchantID,
+		"customer_id": customerID,
 	})
 	if err != nil {
 		log.Info(ctx, "GetWriteOff.FindIssueRecord() error", zap.Error(err))

@@ -13,7 +13,7 @@ import (
 type WriteOffRequest struct {
 	wsgin.AuthRequest
 
-	CustomerId uint64 `json:"customer_id" form:"customer_id" binding:"required" example:"客户ID"`
+	CustomerID uint64 `json:"customer_id" form:"customer_id" binding:"required" example:"客户ID"`
 }
 
 // WriteOffResponse .
@@ -46,7 +46,7 @@ func (r *WriteOffRequest) Extract(c *gin.Context) (code wsgin.APICode, err error
 func (r *WriteOffRequest) Exec(ctx context.Context) interface{} {
 	resp := WriteOffResponse{}
 
-	data, code, err := svc.GetWriteOff(ctx, r.TokenParames.Uid, r.CustomerId)
+	data, code, err := svc.GetWriteOff(ctx, r.TokenParames.UID, r.CustomerID)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp

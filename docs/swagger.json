@@ -94,6 +94,44 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "customer exec checkin record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "客户"
+                ],
+                "summary": "用户执行签到",
+                "parameters": [
+                    {
+                        "description": "参数",
+                        "name": "args",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/server.ExecCheckinRecordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/server.ExecCheckinRecordResponse"
+                        }
+                    }
+                }
             }
         },
         "/customers/detail": {
@@ -127,6 +165,122 @@
                         "description": "{\"status\":true}",
                         "schema": {
                             "$ref": "#/definitions/server.CustomerDetailResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/customers/login": {
+            "post": {
+                "description": "customer login",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "客户"
+                ],
+                "summary": "客户登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "微信回调code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/server.CustomerLoginResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/customers/near_merchant": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get customer near merchant",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "客户"
+                ],
+                "summary": "获取用户附近最近的几家店铺",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "经度",
+                        "name": "lon",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "维度",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "距离多少公里内，默认10",
+                        "name": "distince",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "返回数量，默认4个",
+                        "name": "num",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/server.NearMerchantResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/customers/qrcode": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get customer qrcode",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "客户"
+                ],
+                "summary": "获取客户所属二维码",
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -298,7 +452,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/model.MerchantVO"
+                            "$ref": "#/definitions/server.MerchantAddRequest"
                         }
                     }
                 ],
@@ -581,11 +735,23 @@
         "model.Customer": {
             "type": "object",
             "properties": {
+                "city": {
+                    "description": "微信用户所在区",
+                    "type": "string"
+                },
+                "country": {
+                    "description": "微信用户所在国家",
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
                 "created_by": {
                     "type": "integer"
+                },
+                "headimgurl": {
+                    "description": "微信用户头像",
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -602,6 +768,22 @@
                     "description": "称呼",
                     "type": "string"
                 },
+                "nickname": {
+                    "description": "微信用户昵称",
+                    "type": "string"
+                },
+                "open_id": {
+                    "description": "微信用户openid",
+                    "type": "string"
+                },
+                "province": {
+                    "description": "微信用户所在市",
+                    "type": "string"
+                },
+                "sex": {
+                    "description": "微信用户性别",
+                    "type": "integer"
+                },
                 "status": {
                     "type": "string"
                 },
@@ -610,6 +792,23 @@
                 },
                 "updated_by": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.CustomerLoginResp": {
+            "type": "object",
+            "properties": {
+                "checkin_record_list": {
+                    "description": "用户签到信息",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CheckinRecord"
+                    }
+                },
+                "customer": {
+                    "description": "用户信息",
+                    "type": "object",
+                    "$ref": "#/definitions/model.Customer"
                 }
             }
         },
@@ -792,10 +991,6 @@
                     "description": "商户海报",
                     "type": "string"
                 },
-                "received": {
-                    "description": "已领礼品数量",
-                    "type": "integer"
-                },
                 "store_avatar": {
                     "description": "店铺头像",
                     "type": "string"
@@ -955,14 +1150,66 @@
                 }
             }
         },
-        "server.ExecWriteOffRequest": {
+        "server.CustomerLoginResponse": {
             "type": "object",
             "properties": {
-                "tokenParames": {
+                "code": {
+                    "description": "业务状态码",
+                    "type": "string"
+                },
+                "data": {
                     "type": "object",
-                    "$ref": "#/definitions/jwt.TokenParames"
+                    "$ref": "#/definitions/model.CustomerLoginResp"
+                },
+                "error": {
+                    "description": "Error信息",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "提示消息",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
                 }
             }
+        },
+        "server.ExecCheckinRecordRequest": {
+            "type": "object",
+            "required": [
+                "day"
+            ],
+            "properties": {
+                "day": {
+                    "description": "签到第天数",
+                    "type": "integer"
+                }
+            }
+        },
+        "server.ExecCheckinRecordResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务状态码",
+                    "type": "string"
+                },
+                "error": {
+                    "description": "Error信息",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "提示消息",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                }
+            }
+        },
+        "server.ExecWriteOffRequest": {
+            "type": "object"
         },
         "server.ExecWriteOffResponse": {
             "type": "object",
@@ -986,6 +1233,15 @@
                 "status": {
                     "description": "状态",
                     "type": "boolean"
+                }
+            }
+        },
+        "server.MerchantAddRequest": {
+            "type": "object",
+            "properties": {
+                "merchant": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.MerchantVO"
                 }
             }
         },
@@ -1080,6 +1336,33 @@
                 "data": {
                     "description": "access token",
                     "type": "string"
+                },
+                "error": {
+                    "description": "Error信息",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "提示消息",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                }
+            }
+        },
+        "server.NearMerchantResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务状态码",
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Merchant"
+                    }
                 },
                 "error": {
                     "description": "Error信息",
