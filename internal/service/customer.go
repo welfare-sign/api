@@ -152,7 +152,7 @@ func (s *Service) ExecCheckinRecord(ctx context.Context, customerID, day uint64)
 	checkinRecord, err := s.dao.FindCheckinRecord(ctx, map[string]interface{}{
 		"customer_id": customerID,
 		"day":         day,
-		"status":      "A",
+		"status":      global.ActiveStatus,
 	})
 	if err != nil {
 		return apicode.ErrExecCheckinRecord, err
@@ -187,4 +187,97 @@ func (s *Service) GetQRCode(ctx context.Context, customerID uint64) (data []byte
 		log.Warn(ctx, "客户获取二维码失败", zap.Error(err))
 	}
 	return
+}
+
+// GetIssueRecords 客户查看我的福利
+func (s *Service) GetIssueRecords(ctx context.Context, customerID uint64) ([]*model.IssueRecord, wsgin.APICode, error) {
+	issueRecords, err := s.dao.ListIssueRecordDetail(ctx, map[string]interface{}{
+		"customer_id": customerID,
+		"status":      global.ActiveStatus,
+	})
+	if err != nil {
+		return nil, apicode.ErrIssueRecord, err
+	}
+	return issueRecords, wsgin.APICodeSuccess, nil
+}
+
+// ExecIssueRecords 客户领取福利
+func (s *Service) ExecIssueRecords(ctx context.Context, customerID, merchantID uint64) (wsgin.APICode, error) {
+	checkinRecords, err := s.dao.ListCheckinRecord(ctx, map[string]interface{}{
+		"status":      global.ActiveStatus,
+		"customer_id": customerID,
+	})
+	if err != nil {
+		log.Warn(ctx, "ExecIssueRecords.ListCheckinRecord() error", zap.Error(err))
+		return apicode.ErrExecIssueRecord, err
+	}
+	if len(checkinRecords) != 5 {
+		return apicode.ErrExecIssueRecord, errors.New("您还未签满5天")
+	}
+
+	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{
+		"merchant_id": merchantID,
+		"status":      global.ActiveStatus,
+	})
+	if err != nil {
+		return apicode.ErrExecIssueRecord, err
+	}
+	if merchant.Received >= merchant.TotalReceive {
+		return apicode.ErrExecIssueRecord, errors.New("该商家的福利已被领完了")
+	}
+
+	var issueRecord model.IssueRecord
+	issueRecord.MerchantID = merchantID
+	issueRecord.CustomerID = customerID
+	issueRecord.TotalReceive = merchant.CheckinNum
+	issueRecord.Received = 0
+	if err := s.dao.CreateIssueRecord(ctx, issueRecord); err != nil {
+		return apicode.ErrExecIssueRecord, err
+	}
+	return wsgin.APICodeSuccess, nil
+}
+
+// RefreshCheckinRecord 客户重新签到
+func (s *Service) RefreshCheckinRecord(ctx context.Context, customerID uint64) (wsgin.APICode, error) {
+	if err := s.dao.InvalidCheckin(ctx, customerID); err != nil {
+		return apicode.ErrRefreshCheckinRecord, err
+	}
+	return wsgin.APICodeSuccess, nil
+}
+
+// HelpCheckinRecord 帮助他人签到
+func (s *Service) HelpCheckinRecord(ctx context.Context, helpCustomerID, customerID, day uint64) (wsgin.APICode, error) {
+	checkinRecord, err := s.dao.FindCheckinRecord(ctx, "customer_id = ? AND help_checkin_customer_id = ? AND day = ? AND status <> ?", customerID, helpCustomerID, day, global.DeleteStatus)
+	if err != nil {
+		return apicode.ErrHelpCheckin, err
+	}
+	if checkinRecord.Status == global.ActiveStatus {
+		return apicode.ErrHelpCheckin, errors.New("has checkin")
+	}
+	checkinRecords, err := s.dao.ListCheckinRecord(ctx, "status <> ? AND customer_id = ? AND help_checkin_customer_id = ? AND day <> ?", global.DeleteStatus, customerID, helpCustomerID, day)
+	if err != nil {
+		return apicode.ErrHelpCheckin, err
+	}
+	if len(checkinRecords) > 0 {
+		return apicode.ErrHelpCheckin, errors.New("您已帮签，不可重复帮助签到")
+	}
+
+	checkinRecords, err = s.dao.ListCheckinRecord(ctx, "status <> ? AND customer_id = ?", global.DeleteStatus, customerID)
+	if err != nil {
+		return apicode.ErrHelpCheckin, err
+	}
+	if len(checkinRecords) == 0 || len(checkinRecords) != 5 {
+		log.Warn(ctx, "用户签到发生错误: 签到记录为0或不等于5", zap.Error(errors.New("帮签发生错误")))
+		return apicode.ErrHelpCheckin, errors.New("帮签发生错误")
+	}
+	d1 := checkinRecords[0].CreatedAt.AddDate(0, 0, int(day)-1).Unix()
+	now := time.Now().Unix()
+	if d1 > now {
+		return apicode.ErrHelpCheckin, errors.New("补签不可提前")
+	}
+	if err := s.dao.HelpCheckin(ctx, customerID, helpCustomerID, day); err != nil {
+		log.Warn(ctx, "帮签发生错误", zap.Error(err))
+		return apicode.ErrHelpCheckin, err
+	}
+	return wsgin.APICodeSuccess, nil
 }

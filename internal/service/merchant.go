@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"welfare-sign/internal/apicode"
+	"welfare-sign/internal/global"
 	"welfare-sign/internal/model"
 	"welfare-sign/internal/pkg/jwt"
 	"welfare-sign/internal/pkg/log"
@@ -104,6 +105,7 @@ func (s *Service) GetWriteOff(ctx context.Context, merchantID, customerID uint64
 	issueRecord, err := s.dao.FindIssueRecord(ctx, map[string]interface{}{
 		"merchant_id": merchantID,
 		"customer_id": customerID,
+		"status":      global.ActiveStatus,
 	})
 	if err != nil {
 		log.Info(ctx, "GetWriteOff.FindIssueRecord() error", zap.Error(err))

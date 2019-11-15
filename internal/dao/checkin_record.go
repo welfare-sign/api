@@ -26,7 +26,7 @@ func (d *dao) InitCheckinRecords(ctx context.Context, customerID uint64) ([]*mod
 	// 目前限制签到5天，只创建5条记录
 	for i := 0; i < 5; i++ {
 		cr := &model.CheckinRecord{}
-		cr.Status = global.CheckinRecordInactiveStatus
+		cr.Status = global.InactiveStatus
 		cr.UpdatedAt = time.Now()
 		cr.CreatedAt = time.Now()
 		cr.CustomerID = customerID
@@ -43,17 +43,37 @@ func (d *dao) InitCheckinRecords(ctx context.Context, customerID uint64) ([]*mod
 }
 
 // FindCheckinRecord 查询签到记录
-func (d *dao) FindCheckinRecord(ctx context.Context, query interface{}) (*model.CheckinRecord, error) {
+func (d *dao) FindCheckinRecord(ctx context.Context, query interface{}, args ...interface{}) (*model.CheckinRecord, error) {
 	var checkinRecord model.CheckinRecord
-	err := checkErr(d.db.Where(query).First(&checkinRecord).Error)
+	err := checkErr(d.db.Where(query, args...).First(&checkinRecord).Error)
 	return &checkinRecord, err
 }
 
 // ExecCheckin 记录用户签到
 func (d *dao) ExecCheckin(ctx context.Context, customerID, day uint64) error {
-	return d.db.Model(model.CheckinRecord{}).Where(map[string]interface{}{
-		"status":      global.CheckinRecordInactiveStatus,
+	return d.db.Model(&model.CheckinRecord{}).Where(map[string]interface{}{
+		"status":      global.InactiveStatus,
 		"customer_id": customerID,
 		"day":         day,
-	}).Update("status", global.CheckinRecordActiveStatus).Error
+	}).Update("status", global.ActiveStatus).Error
+}
+
+// InvalidCheckin 作废用户签到记录
+func (d *dao) InvalidCheckin(ctx context.Context, customerID uint64) error {
+	return checkErr(d.db.Model(&model.CheckinRecord{}).Where(map[string]interface{}{
+		"status":      global.ActiveStatus,
+		"customer_id": customerID,
+	}).Update("status", global.InactiveStatus).Error)
+}
+
+// HelpCheckin 帮助他人补签
+func (d *dao) HelpCheckin(ctx context.Context, customerID, helpCustomerID, day uint64) error {
+	return checkErr(d.db.Model(&model.CheckinRecord{}).Where(map[string]interface{}{
+		"status":      global.InactiveStatus,
+		"customer_id": customerID,
+		"day":         day,
+	}).Updates(map[string]interface{}{
+		"status":                   global.ActiveStatus,
+		"help_checkin_customer_id": helpCustomerID,
+	}).Error)
 }

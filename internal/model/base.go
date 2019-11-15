@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"time"
+	"welfare-sign/internal/global"
+)
 
 // Kratos hello kratos.
 type Kratos struct {
@@ -19,7 +22,7 @@ type Base struct {
 
 // SetDefaultAttr 设置默认的属性值
 func (b *Base) SetDefaultAttr() {
-	b.Status = "A"
+	b.Status = global.ActiveStatus
 	b.CreatedAt = time.Now()
 	b.CreatedBy = 0
 	b.UpdatedAt = time.Now()

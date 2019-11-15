@@ -73,11 +73,15 @@ func initRouter(e *gin.Engine) {
 	{
 		customers.GET("", wsgin.ProcessExec(&CustomerListRequest{}))
 		customers.GET("/detail", wsgin.ProcessExec(&CustomerDetailRequest{}))
-		customers.GET("/checkin_record", wsgin.ProcessExec(&CheckinRecordRequest{}))
-		customers.POST("/checkin_record", wsgin.ProcessExec(&ExecCheckinRecordRequest{}))
-		customers.GET("/qrcode", wsgin.ProcessExec(&QRCodeRequest{}))
+		customers.GET("/checkin_record", wsgin.ProcessExec(&CheckinRecordRequest{}))      // 获取签到记录
+		customers.POST("/checkin_record", wsgin.ProcessExec(&ExecCheckinRecordRequest{})) // 签到
+		customers.GET("/qrcode", wsgin.ProcessExec(&QRCodeRequest{}))                     // 获取二维码
 		customers.POST("/login", wsgin.ProcessExec(&CustomerLoginRequest{}))
-		customers.GET("/near_merchant", wsgin.ProcessExec(&NearMerchantRequest{}))
+		customers.GET("/near_merchant", wsgin.ProcessExec(&NearMerchantRequest{}))                   // 获取附近商家
+		customers.GET("/issue_records", wsgin.ProcessExec(&IssueRecordRequest{}))                    // 查看我的福利
+		customers.POST("/issue_records", wsgin.ProcessExec(&ExecIssueRecordRequest{}))               // 领取福利
+		customers.POST("/checkin_record/refresh", wsgin.ProcessExec(&RefreshCheckinRecordRequest{})) // 用户重新签到
+		customers.POST("/checkin_record/help", wsgin.ProcessExec(&HelpCheckinRequest{}))             // 帮助他人签到
 	}
 
 	// 验证码

@@ -18,6 +18,7 @@ id, (
   )
 ) AS distance
 FROM merchant
+WHERE received + checkin_num <= total_receive
 HAVING distance <= ?
 ORDER BY distance ASC
 LIMIT ?;`

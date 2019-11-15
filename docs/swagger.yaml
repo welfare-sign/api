@@ -99,11 +99,17 @@ definitions:
         type: string
       created_by:
         type: integer
+      customer:
+        $ref: '#/definitions/model.Customer'
+        type: object
       customer_id:
         description: 顾客ID
         type: integer
       id:
         type: integer
+      merchant:
+        $ref: '#/definitions/model.Merchant'
+        type: object
       merchant_id:
         description: 店铺ID
         type: integer
@@ -376,6 +382,29 @@ definitions:
         description: 状态
         type: boolean
     type: object
+  server.ExecIssueRecordRequest:
+    properties:
+      merchant_id:
+        description: 店铺ID
+        type: integer
+    required:
+    - merchant_id
+    type: object
+  server.ExecIssueRecordResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
   server.ExecWriteOffRequest:
     type: object
   server.ExecWriteOffResponse:
@@ -386,6 +415,52 @@ definitions:
       data:
         $ref: '#/definitions/model.MerchantWriteOffRespVO'
         type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.HelpCheckinRequest:
+    properties:
+      customer_id:
+        description: 补签客户ID
+        type: integer
+      day:
+        description: 为第几天签到
+        type: integer
+    required:
+    - customer_id
+    - day
+    type: object
+  server.HelpCheckinResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.IssueRecordResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/model.IssueRecord'
+        type: array
       error:
         description: Error信息
         type: string
@@ -487,6 +562,23 @@ definitions:
         items:
           $ref: '#/definitions/model.Merchant'
         type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.RefreshCheckinRecordRequest:
+    type: object
+  server.RefreshCheckinRecordResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
       error:
         description: Error信息
         type: string
@@ -631,6 +723,56 @@ paths:
       summary: 用户执行签到
       tags:
       - 客户
+  /customers/checkin_record/help:
+    post:
+      consumes:
+      - application/json
+      description: customer help other checkin
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.HelpCheckinRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.HelpCheckinResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 为他人补签
+      tags:
+      - 客户
+  /customers/checkin_record/refresh:
+    post:
+      consumes:
+      - application/json
+      description: customer refresh checkin record
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.RefreshCheckinRecordRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.RefreshCheckinRecordResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户重新签到
+      tags:
+      - 客户
   /customers/detail:
     get:
       consumes:
@@ -651,6 +793,47 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取客户详情
+      tags:
+      - 客户
+  /customers/issue_records:
+    get:
+      consumes:
+      - application/json
+      description: customer get issue record
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.IssueRecordResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 客户查看我的福利
+      tags:
+      - 客户
+    post:
+      consumes:
+      - application/json
+      description: customer exec issue record
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.ExecIssueRecordRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ExecIssueRecordResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户领取福利
       tags:
       - 客户
   /customers/login:

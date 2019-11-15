@@ -29,8 +29,13 @@ type Dao interface {
 	InitCheckinRecords(ctx context.Context, customerID uint64) ([]*model.CheckinRecord, error)
 	UpsertCustomer(ctx context.Context, data *model.WxUserResp) (*model.Customer, error)
 	NearMerchant(ctx context.Context, data *model.NearMerchantVO) ([]*model.Merchant, error)
-	FindCheckinRecord(ctx context.Context, query interface{}) (*model.CheckinRecord, error)
+	FindCheckinRecord(ctx context.Context, query interface{}, args ...interface{}) (*model.CheckinRecord, error)
 	ExecCheckin(ctx context.Context, customerID, day uint64) error
+	ListIssueRecord(ctx context.Context, query interface{}, args ...interface{}) ([]*model.IssueRecord, error)
+	ListIssueRecordDetail(ctx context.Context, query interface{}, args ...interface{}) ([]*model.IssueRecord, error)
+	CreateIssueRecord(ctx context.Context, data model.IssueRecord) error
+	InvalidCheckin(ctx context.Context, customerID uint64) error
+	HelpCheckin(ctx context.Context, customerID, helpCustomerID, day uint64) error
 }
 
 // dao dao.
