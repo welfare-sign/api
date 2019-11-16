@@ -1,9 +1,13 @@
 package util
 
 import (
+	"bytes"
+	"crypto/sha1"
+	"fmt"
 	"math/rand"
 	"reflect"
 	"regexp"
+	"sort"
 	"strconv"
 	"time"
 
@@ -90,4 +94,40 @@ func GenerateCode() (code string) {
 // TimeFormat 时间格式化
 func TimeFormat(time time.Time) string {
 	return time.Format("2006-01-02 15:04:05")
+}
+
+// GetWXSignString 获取微信JS API 签名
+func GetWXSignString(values map[string]string) string {
+	var (
+		i    = 0
+		size = len(values)
+	)
+
+	//第一步：把Key按字典的字母顺序排序
+	sortedParams := make([]string, size)
+	for key := range values {
+		sortedParams[i] = key
+		i++
+	}
+	sort.Strings(sortedParams)
+
+	//第二步：把所有参数名和参数值串在一起
+	buffer := bytes.Buffer{}
+	for _, key := range sortedParams {
+		val, ok := values[key]
+		if !ok || len(val) == 0 {
+			continue
+		}
+
+		buffer.WriteString(key)
+		buffer.WriteString("=")
+		buffer.WriteString(val)
+		buffer.WriteString("&")
+	}
+	buffer.Truncate(buffer.Len() - 1)
+
+	h := sha1.New()
+	h.Write(buffer.Bytes())
+	bs := h.Sum(nil)
+	return fmt.Sprintf("%x", bs)
 }

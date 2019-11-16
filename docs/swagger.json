@@ -823,6 +823,38 @@
                     }
                 }
             }
+        },
+        "/wx/config": {
+            "get": {
+                "description": "get wx config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "微信"
+                ],
+                "summary": "获取微信接口配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "当前页URL，不包含#及其后面部分",
+                        "name": "url",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/server.WXConfigResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1173,6 +1205,27 @@
                 "merchant": {
                     "type": "object",
                     "$ref": "#/definitions/model.Merchant"
+                }
+            }
+        },
+        "model.WXConfigResp": {
+            "type": "object",
+            "properties": {
+                "appid": {
+                    "description": "公众号的唯一标识",
+                    "type": "string"
+                },
+                "noncestr": {
+                    "description": "生成签名的随机串",
+                    "type": "string"
+                },
+                "signature": {
+                    "description": "签名",
+                    "type": "string"
+                },
+                "timestamp": {
+                    "description": "生成签名的时间戳",
+                    "type": "integer"
                 }
             }
         },
@@ -1681,6 +1734,31 @@
                 "data": {
                     "description": "access token",
                     "type": "string"
+                },
+                "error": {
+                    "description": "Error信息",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "提示消息",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                }
+            }
+        },
+        "server.WXConfigResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务状态码",
+                    "type": "string"
+                },
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.WXConfigResp"
                 },
                 "error": {
                     "description": "Error信息",

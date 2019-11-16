@@ -13,11 +13,12 @@ require (
 	github.com/jinzhu/gorm v1.9.11
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/pkg/errors v0.8.1
+	github.com/satori/go.uuid v1.2.0
 	github.com/skip2/go-qrcode v0.0.0-20191027152451-9434209cb086
 	github.com/spf13/viper v1.4.0
-	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.3
+	github.com/tidwall/gjson v1.3.4
 	github.com/tidwall/pretty v1.0.0
 	go.uber.org/zap v1.11.0
 	gopkg.in/go-playground/validator.v9 v9.30.0

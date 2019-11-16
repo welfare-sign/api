@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
@@ -36,6 +37,10 @@ type Dao interface {
 	CreateIssueRecord(ctx context.Context, data model.IssueRecord) error
 	InvalidCheckin(ctx context.Context, customerID uint64) error
 	HelpCheckin(ctx context.Context, customerID, helpCustomerID, day uint64) error
+	StoreWXAccessToken(ak string, expire time.Duration) error
+	StoreWXJSTicket(ticket string, expire time.Duration) error
+	GetWXAccessToken() (string, error)
+	GetWXJSTicket() (string, error)
 }
 
 // dao dao.
@@ -46,6 +51,13 @@ type dao struct {
 
 func checkErr(err error) error {
 	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
+	}
+	return nil
+}
+
+func checkCacheError(err error) error {
+	if err != nil && err != redis.Nil {
 		return err
 	}
 	return nil

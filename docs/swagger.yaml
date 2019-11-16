@@ -251,6 +251,21 @@ definitions:
         $ref: '#/definitions/model.Merchant'
         type: object
     type: object
+  model.WXConfigResp:
+    properties:
+      appid:
+        description: 公众号的唯一标识
+        type: string
+      noncestr:
+        description: 生成签名的随机串
+        type: string
+      signature:
+        description: 签名
+        type: string
+      timestamp:
+        description: 生成签名的时间戳
+        type: integer
+    type: object
   server.BaseResponse:
     properties:
       code:
@@ -609,6 +624,24 @@ definitions:
       data:
         description: access token
         type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.WXConfigResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.WXConfigResp'
+        type: object
       error:
         description: Error信息
         type: string
@@ -1163,6 +1196,27 @@ paths:
       summary: 发送验证码
       tags:
       - 验证码
+  /wx/config:
+    get:
+      consumes:
+      - application/json
+      description: get wx config
+      parameters:
+      - description: 当前页URL，不包含#及其后面部分
+        in: query
+        name: url
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.WXConfigResponse'
+      summary: 获取微信接口配置
+      tags:
+      - 微信
 securityDefinitions:
   ApiKeyAuth:
     in: header

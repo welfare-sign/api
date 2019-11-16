@@ -24,6 +24,7 @@ const (
 	ErrExecIssueRecord      wsgin.APICode = "ERR_EXEC_ISSUE_RECORD"
 	ErrRefreshCheckinRecord wsgin.APICode = "ERR_REFRESH_CHECKIN_RECORD"
 	ErrHelpCheckin          wsgin.APICode = "ERR_HELP_CHECKIN"
+	ErrGetWXConfig          wsgin.APICode = "ERR_GET_WXCONFIG"
 )
 
 func init() {
@@ -47,4 +48,5 @@ func init() {
 	wsgin.APICodeMapZH[ErrExecIssueRecord] = "福利领取失败"
 	wsgin.APICodeMapZH[ErrRefreshCheckinRecord] = "执行重新签到失败"
 	wsgin.APICodeMapZH[ErrHelpCheckin] = "帮签失败"
+	wsgin.APICodeMapZH[ErrGetWXConfig] = "获取微信接口配置时发生错误"
 }

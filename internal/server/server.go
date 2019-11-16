@@ -89,6 +89,11 @@ func initRouter(e *gin.Engine) {
 	{
 		smscode.GET("", wsgin.ProcessExec(&CodeRequest{}))
 	}
+
+	wx := v1.Group("/wx")
+	{
+		wx.GET("/config", wsgin.ProcessExec(&WXConfigRequest{}))
+	}
 }
 
 func ping(c *gin.Context) {
