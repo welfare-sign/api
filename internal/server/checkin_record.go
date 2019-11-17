@@ -12,6 +12,8 @@ import (
 // CheckinRecordRequest .
 type CheckinRecordRequest struct {
 	wsgin.AuthRequest
+
+	CustomerID uint64 `form:"customer_id" json:"customer_id"` // 当该参数有值时以该参数为准
 }
 
 // CheckinRecordResponse .
@@ -38,12 +40,13 @@ func (r *CheckinRecordRequest) Extract(c *gin.Context) (code wsgin.APICode, err 
 // @Tags 客户
 // @Accept json
 // @Produce json
+// @Param customer_id query string false "当该参数有值时以该参数为准，否则以token用户为准"
 // @Success 200 {object} server.CheckinRecordResponse	"{"status":true}"
 // @Router /customers/checkin_record [get]
 func (r *CheckinRecordRequest) Exec(ctx context.Context) interface{} {
 	resp := CheckinRecordResponse{}
 
-	data, code, err := svc.GetCustomerCheckinRecord(ctx, r.TokenParames.UID)
+	data, code, err := svc.GetCustomerCheckinRecord(ctx, r.TokenParames.UID, r.CustomerID)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp

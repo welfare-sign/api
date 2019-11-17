@@ -34,7 +34,6 @@ func (r *RefreshCheckinRecordRequest) Extract(c *gin.Context) (code wsgin.APICod
 // @Tags 客户
 // @Accept json
 // @Produce json
-// @Param args body server.RefreshCheckinRecordRequest true "参数"
 // @Success 200 {object} server.RefreshCheckinRecordResponse "{"status":true}"
 // @Router /customers/checkin_record/refresh [post]
 func (r *RefreshCheckinRecordRequest) Exec(ctx context.Context) interface{} {

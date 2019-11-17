@@ -86,6 +86,14 @@
                     "客户"
                 ],
                 "summary": "获取签到记录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "当该参数有值时以该参数为准，否则以token用户为准",
+                        "name": "customer_id",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "{\"status\":true}",
@@ -112,18 +120,6 @@
                     "客户"
                 ],
                 "summary": "用户执行签到",
-                "parameters": [
-                    {
-                        "description": "参数",
-                        "name": "args",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/server.ExecCheckinRecordRequest"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "{\"status\":true}",
@@ -192,18 +188,6 @@
                     "客户"
                 ],
                 "summary": "用户重新签到",
-                "parameters": [
-                    {
-                        "description": "参数",
-                        "name": "args",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/server.RefreshCheckinRecordRequest"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "{\"status\":true}",
@@ -311,6 +295,34 @@
                         "description": "{\"status\":true}",
                         "schema": {
                             "$ref": "#/definitions/server.ExecIssueRecordResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/customers/issue_records/is_supplement": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "is supplement checkin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "客户"
+                ],
+                "summary": "是否是补签",
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/server.IsSupplementCheckinResponse"
                         }
                     }
                 }
@@ -855,6 +867,74 @@
                     }
                 }
             }
+        },
+        "/wx/pay": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "customer pay",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "微信"
+                ],
+                "summary": "用户支付",
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/server.WXPayResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wx/pay/notify": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "wx pay callback",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "微信"
+                ],
+                "summary": "用户支付",
+                "parameters": [
+                    {
+                        "description": "参数",
+                        "name": "args",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/server.WxpayCallbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -898,6 +978,10 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "need_checkin_time": {
+                    "description": "需要签到的日期",
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -970,23 +1054,6 @@
                 },
                 "updated_by": {
                     "type": "integer"
-                }
-            }
-        },
-        "model.CustomerLoginResp": {
-            "type": "object",
-            "properties": {
-                "checkin_record_list": {
-                    "description": "用户签到信息",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.CheckinRecord"
-                    }
-                },
-                "customer": {
-                    "description": "用户信息",
-                    "type": "object",
-                    "$ref": "#/definitions/model.Customer"
                 }
             }
         },
@@ -1133,6 +1200,8 @@
             "type": "object",
             "required": [
                 "address",
+                "checkin_days",
+                "checkin_num",
                 "contact_phone",
                 "lat",
                 "lon",
@@ -1365,8 +1434,7 @@
                     "type": "string"
                 },
                 "data": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.CustomerLoginResp"
+                    "type": "string"
                 },
                 "error": {
                     "description": "Error信息",
@@ -1379,18 +1447,6 @@
                 "status": {
                     "description": "状态",
                     "type": "boolean"
-                }
-            }
-        },
-        "server.ExecCheckinRecordRequest": {
-            "type": "object",
-            "required": [
-                "day"
-            ],
-            "properties": {
-                "day": {
-                    "description": "签到第天数",
-                    "type": "integer"
                 }
             }
         },
@@ -1479,16 +1535,11 @@
         "server.HelpCheckinRequest": {
             "type": "object",
             "required": [
-                "customer_id",
-                "day"
+                "customer_id"
             ],
             "properties": {
                 "customer_id": {
                     "description": "补签客户ID",
-                    "type": "integer"
-                },
-                "day": {
-                    "description": "为第几天签到",
                     "type": "integer"
                 }
             }
@@ -1499,6 +1550,30 @@
                 "code": {
                     "description": "业务状态码",
                     "type": "string"
+                },
+                "error": {
+                    "description": "Error信息",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "提示消息",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                }
+            }
+        },
+        "server.IsSupplementCheckinResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务状态码",
+                    "type": "string"
+                },
+                "data": {
+                    "type": "boolean"
                 },
                 "error": {
                     "description": "Error信息",
@@ -1683,9 +1758,6 @@
                 }
             }
         },
-        "server.RefreshCheckinRecordRequest": {
-            "type": "object"
-        },
         "server.RefreshCheckinRecordResponse": {
             "type": "object",
             "properties": {
@@ -1774,6 +1846,30 @@
                 }
             }
         },
+        "server.WXPayResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务状态码",
+                    "type": "string"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "error": {
+                    "description": "Error信息",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "提示消息",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                }
+            }
+        },
         "server.WriteOffResponse": {
             "type": "object",
             "properties": {
@@ -1796,6 +1892,17 @@
                 "status": {
                     "description": "状态",
                     "type": "boolean"
+                }
+            }
+        },
+        "server.WxpayCallbackRequest": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "string"
+                },
+                "response": {
+                    "type": "string"
                 }
             }
         }

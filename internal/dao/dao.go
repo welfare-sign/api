@@ -31,16 +31,20 @@ type Dao interface {
 	UpsertCustomer(ctx context.Context, data *model.WxUserResp) (*model.Customer, error)
 	NearMerchant(ctx context.Context, data *model.NearMerchantVO) ([]*model.Merchant, error)
 	FindCheckinRecord(ctx context.Context, query interface{}, args ...interface{}) (*model.CheckinRecord, error)
-	ExecCheckin(ctx context.Context, customerID, day uint64) error
+	ExecCheckin(ctx context.Context, customerID uint64) error
 	ListIssueRecord(ctx context.Context, query interface{}, args ...interface{}) ([]*model.IssueRecord, error)
 	ListIssueRecordDetail(ctx context.Context, query interface{}, args ...interface{}) ([]*model.IssueRecord, error)
 	CreateIssueRecord(ctx context.Context, data model.IssueRecord) error
 	InvalidCheckin(ctx context.Context, customerID uint64) error
-	HelpCheckin(ctx context.Context, customerID, helpCustomerID, day uint64) error
+	HelpCheckin(ctx context.Context, checkRecordID, customerID, helpCustomerID uint64) error
 	StoreWXAccessToken(ak string, expire time.Duration) error
 	StoreWXJSTicket(ticket string, expire time.Duration) error
 	GetWXAccessToken() (string, error)
 	GetWXJSTicket() (string, error)
+	HasChecked(ctx context.Context, customerID uint64) (bool, error)
+	GetUnchecked(ctx context.Context, customerID uint64) (*model.CheckinRecord, error)
+	PayCheckin(ctx context.Context, checkRecordID, customerID uint64, payRecord *model.WXPayRecord) error
+	FindWXPayRecord(ctx context.Context, query map[string]interface{}) (*model.WXPayRecord, error)
 }
 
 // dao dao.

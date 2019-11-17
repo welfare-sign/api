@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 
-	"welfare-sign/internal/model"
 	"welfare-sign/internal/pkg/wsgin"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +19,7 @@ type CustomerLoginRequest struct {
 type CustomerLoginResponse struct {
 	wsgin.BaseResponse
 
-	Data *model.CustomerLoginResp `json:"data"`
+	Data string `json:"data"`
 }
 
 // New .

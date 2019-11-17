@@ -7,10 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/pkg/errors"
-	qrcode "github.com/skip2/go-qrcode"
+	"github.com/skip2/go-qrcode"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -18,6 +17,7 @@ import (
 	"welfare-sign/internal/global"
 	"welfare-sign/internal/model"
 	"welfare-sign/internal/pkg/config"
+	"welfare-sign/internal/pkg/jwt"
 	"welfare-sign/internal/pkg/log"
 	"welfare-sign/internal/pkg/util"
 	"welfare-sign/internal/pkg/wsgin"
@@ -56,23 +56,28 @@ func (s *Service) GetCustomerDetail(ctx context.Context, customerID uint64) (*mo
 }
 
 // GetCustomerCheckinRecord 获取用户签到记录
-func (s *Service) GetCustomerCheckinRecord(ctx context.Context, customerID uint64) ([]*model.CheckinRecord, wsgin.APICode, error) {
-	records, err := s.dao.ListCheckinRecord(ctx, "status <> ? AND customer_id = ?", global.DeleteStatus, customerID)
-	if err != nil {
-		return nil, apicode.ErrGetCheckinRecord, err
-	}
-	// 用户无签到记录时，自动创建5条信息并返回
-	if len(records) == 0 {
-		records, err = s.dao.InitCheckinRecords(ctx, customerID)
+func (s *Service) GetCustomerCheckinRecord(ctx context.Context, customerID, inCustomerID uint64) ([]*model.CheckinRecord, wsgin.APICode, error) {
+	if inCustomerID != 0 {
+		records, _ := s.dao.ListCheckinRecord(ctx, "status <> ? AND customer_id = ?", global.DeleteStatus, inCustomerID)
+		return records, wsgin.APICodeSuccess, nil
+	} else {
+		records, err := s.dao.ListCheckinRecord(ctx, "status <> ? AND customer_id = ?", global.DeleteStatus, customerID)
 		if err != nil {
 			return nil, apicode.ErrGetCheckinRecord, err
 		}
+		// 用户无签到记录时，自动创建5条信息并返回
+		if len(records) == 0 {
+			records, err = s.dao.InitCheckinRecords(ctx, customerID)
+			if err != nil {
+				return nil, apicode.ErrGetCheckinRecord, err
+			}
+		}
+		return records, wsgin.APICodeSuccess, nil
 	}
-	return records, wsgin.APICodeSuccess, nil
 }
 
 // CustomerLogin 客户登录
-func (s *Service) CustomerLogin(ctx context.Context, c string) (*model.CustomerLoginResp, wsgin.APICode, error) {
+func (s *Service) CustomerLogin(ctx context.Context, c string) (string, wsgin.APICode, error) {
 	var (
 		successResp  model.WxSuccessResp
 		errResp      model.WxErrResp
@@ -81,61 +86,59 @@ func (s *Service) CustomerLogin(ctx context.Context, c string) (*model.CustomerL
 	// 使用code获取access_token
 	resp, err := http.Get(fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code", viper.GetString(config.KeyWxAppID), viper.GetString(config.KeyWxAppSecret), c))
 	if err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 	defer resp.Body.Close()
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 	if err := json.Unmarshal(bytes, &errResp); err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 	if errResp.Errcode != 0 {
 		log.Warn(ctx, "(CustomerLogin)get access_token error", zap.Error(err))
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 	if err := json.Unmarshal(bytes, &successResp); err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 
 	// 使用access_token + openid获取用户信息
-	resp, err = http.Get(fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN", successResp.AaccessToken, successResp.OpenID))
+	resp, err = http.Get(fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN", successResp.AccessToken, successResp.OpenID))
 	if err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 	defer resp.Body.Close()
 	bytes, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 	if err := json.Unmarshal(bytes, &errResp); err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 	if errResp.Errcode != 0 {
 		log.Warn(ctx, "(CustomerLogin)get userinfo error", zap.Error(err))
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 	if err := json.Unmarshal(bytes, &userinfoResp); err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 	customer := &model.Customer{}
 	if err := util.StructCopy(customer, &userinfoResp); err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
 
 	customer, err = s.dao.UpsertCustomer(ctx, &userinfoResp)
 	if err != nil {
-		return nil, apicode.ErrLogin, err
+		return "", apicode.ErrLogin, err
 	}
-	records, _, err := s.GetCustomerCheckinRecord(ctx, customer.ID)
+	token, err := jwt.CreateToken(customer.ID, customer.Name, customer.Mobile)
 	if err != nil {
-		return nil, apicode.ErrLogin, err
+		log.Info(ctx, "CustomerLogin.CreateToken() error", zap.Error(err))
+		return "", apicode.ErrLogin, err
 	}
-	var data model.CustomerLoginResp
-	data.Customer = customer
-	data.CheckinRecordList = records
-	return &data, wsgin.APICodeSuccess, nil
+	return token, wsgin.APICodeSuccess, nil
 }
 
 // CustomerNearMerchant 获取用户附近最近的几家店铺
@@ -148,32 +151,24 @@ func (s *Service) CustomerNearMerchant(ctx context.Context, data *model.NearMerc
 }
 
 // ExecCheckinRecord 用户签到
-func (s *Service) ExecCheckinRecord(ctx context.Context, customerID, day uint64) (wsgin.APICode, error) {
-	checkinRecord, err := s.dao.FindCheckinRecord(ctx, map[string]interface{}{
-		"customer_id": customerID,
-		"day":         day,
-		"status":      global.ActiveStatus,
-	})
+func (s *Service) ExecCheckinRecord(ctx context.Context, customerID uint64) (wsgin.APICode, error) {
+	hasChecked, err := s.dao.HasChecked(ctx, customerID)
 	if err != nil {
 		return apicode.ErrExecCheckinRecord, err
 	}
-	if checkinRecord.CustomerID != 0 {
+	if hasChecked {
 		return apicode.ErrHasCheckin, errors.New("has checkin")
 	}
-	checkinRecords, err := s.dao.ListCheckinRecord(ctx, "status <> ? AND customer_id = ?", global.DeleteStatus, customerID)
+
+	unchecked, err := s.dao.GetUnchecked(ctx, customerID)
 	if err != nil {
 		return apicode.ErrExecCheckinRecord, err
 	}
-	if len(checkinRecords) == 0 || len(checkinRecords) != 5 {
-		log.Warn(ctx, "用户签到发生错误: 签到记录为0或不等于5", zap.Error(errors.New("用户签到发生错误")))
-		return wsgin.APICodeServerError, errors.New("用户签到发生错误")
+	if unchecked.ID != 0 {
+		return apicode.ErrExecCheckinRecord, errors.New("请先完成补签后再来签到")
 	}
-	d1 := checkinRecords[0].CreatedAt.AddDate(0, 0, int(day)-1).Format("2006-01-02")
-	now := time.Now().Format("2006-01-02")
-	if d1 != now {
-		return apicode.ErrExecCheckinRecord, errors.New("只可完成当天的签到")
-	}
-	if err = s.dao.ExecCheckin(ctx, customerID, day); err != nil {
+
+	if err = s.dao.ExecCheckin(ctx, customerID); err != nil {
 		log.Warn(ctx, "用户签到发生错误: 更新记录时发生错误", zap.Error(err))
 		return wsgin.APICodeServerError, errors.New("用户签到发生错误")
 	}
@@ -246,38 +241,70 @@ func (s *Service) RefreshCheckinRecord(ctx context.Context, customerID uint64) (
 }
 
 // HelpCheckinRecord 帮助他人签到
-func (s *Service) HelpCheckinRecord(ctx context.Context, helpCustomerID, customerID, day uint64) (wsgin.APICode, error) {
-	checkinRecord, err := s.dao.FindCheckinRecord(ctx, "customer_id = ? AND help_checkin_customer_id = ? AND day = ? AND status <> ?", customerID, helpCustomerID, day, global.DeleteStatus)
+func (s *Service) HelpCheckinRecord(ctx context.Context, helpCustomerID, customerID uint64) (wsgin.APICode, error) {
+	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{
+		"id":     helpCustomerID,
+		"status": global.ActiveStatus,
+	})
 	if err != nil {
 		return apicode.ErrHelpCheckin, err
 	}
-	if checkinRecord.Status == global.ActiveStatus {
-		return apicode.ErrHelpCheckin, errors.New("has checkin")
-	}
-	checkinRecords, err := s.dao.ListCheckinRecord(ctx, "status <> ? AND customer_id = ? AND help_checkin_customer_id = ? AND day <> ?", global.DeleteStatus, customerID, helpCustomerID, day)
-	if err != nil {
-		return apicode.ErrHelpCheckin, err
-	}
-	if len(checkinRecords) > 0 {
-		return apicode.ErrHelpCheckin, errors.New("您已帮签，不可重复帮助签到")
+	if customer.ID == 0 {
+		return apicode.ErrHelpCheckin, errors.New("帮签用户不存在")
 	}
 
-	checkinRecords, err = s.dao.ListCheckinRecord(ctx, "status <> ? AND customer_id = ?", global.DeleteStatus, customerID)
+	hasHelpChecked, err := s.dao.FindCheckinRecord(ctx, map[string]interface{}{
+		"customer_id":              customerID,
+		"help_checkin_customer_id": helpCustomerID,
+		"status":                   global.ActiveStatus,
+	})
 	if err != nil {
 		return apicode.ErrHelpCheckin, err
 	}
-	if len(checkinRecords) == 0 || len(checkinRecords) != 5 {
-		log.Warn(ctx, "用户签到发生错误: 签到记录为0或不等于5", zap.Error(errors.New("帮签发生错误")))
-		return apicode.ErrHelpCheckin, errors.New("帮签发生错误")
+	if hasHelpChecked.ID != 0 {
+		return apicode.ErrHasHelpCheckin, errors.New("has help checkin")
 	}
-	d1 := checkinRecords[0].CreatedAt.AddDate(0, 0, int(day)-1).Unix()
-	now := time.Now().Unix()
-	if d1 > now {
-		return apicode.ErrHelpCheckin, errors.New("补签不可提前")
+
+	unChecked, err := s.dao.GetUnchecked(ctx, customerID)
+	if err != nil {
+		return apicode.ErrHelpCheckin, err
 	}
-	if err := s.dao.HelpCheckin(ctx, customerID, helpCustomerID, day); err != nil {
+	if unChecked.ID == 0 {
+		return apicode.ErrHelpCheckin, errors.New("该用户没有需要补签的记录")
+	}
+
+	if err := s.dao.HelpCheckin(ctx, unChecked.ID, customerID, helpCustomerID); err != nil {
 		log.Warn(ctx, "帮签发生错误", zap.Error(err))
 		return apicode.ErrHelpCheckin, err
 	}
 	return wsgin.APICodeSuccess, nil
+}
+
+// IsSupplement 是否是补签
+func (s *Service) IsSupplement(ctx context.Context, customerID uint64) (bool, wsgin.APICode, error) {
+	records, err := s.dao.ListCheckinRecord(ctx, map[string]interface{}{
+		"customer_id": customerID,
+		"status":      global.ActiveStatus,
+	})
+	if err != nil {
+		return false, apicode.ErrGetIsSupplement, err
+	}
+	if len(records) == 0 {
+		return false, apicode.ErrGetIsSupplement, err
+	}
+	lastRecord := records[len(records)-1]
+	if lastRecord.HelpCheckinCustomerID != 0 {
+		return true, wsgin.APICodeSuccess, nil
+	}
+	orderRecord, err := s.dao.FindWXPayRecord(ctx, map[string]interface{}{
+		"checkin_record_id": lastRecord.ID,
+		"status":            global.ActiveStatus,
+	})
+	if err != nil {
+		return false, apicode.ErrGetIsSupplement, err
+	}
+	if orderRecord.ID != 0 {
+		return true, wsgin.APICodeSuccess, nil
+	}
+	return false, wsgin.APICodeSuccess, nil
 }

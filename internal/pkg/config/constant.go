@@ -31,4 +31,8 @@ const (
 	KeyWxAppSecret = "wx.appsecret"
 
 	KeyQRCodeURL = "qrcode.url"
+
+	KeyWXPayMchID     = "wx.pay_mch_id"
+	KeyWXPayAPI       = "wx.pay_api_key"
+	KeyWXPayNotifyURL = "wx.pay_notify_url"
 )

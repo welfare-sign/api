@@ -19,7 +19,8 @@ func New() *gorm.DB {
 		panic(errors.WithMessage(err, "mysql.New().Open() error"))
 	}
 	db.SingularTable(true)
-	db.AutoMigrate(&model.CheckinRecord{}, &model.Customer{}, &model.IssueRecord{}, &model.Merchant{}, &model.User{})
+	db = db.LogMode(true)
+	db.AutoMigrate(&model.CheckinRecord{}, &model.Customer{}, &model.IssueRecord{}, &model.Merchant{}, &model.User{}, &model.WXPayRecord{})
 	return db
 }
 

@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/jinzhu/gorm"
-
 	"welfare-sign/internal/dao/mysql"
 	"welfare-sign/internal/model"
 	"welfare-sign/internal/pkg/util"
@@ -27,7 +25,7 @@ func (d *dao) ListCustomer(ctx context.Context, query interface{}, pageNo, pageS
 // FindCustomer 获取客户详情
 func (d *dao) FindCustomer(ctx context.Context, query interface{}) (*model.Customer, error) {
 	var customer model.Customer
-	err := d.db.Where(query).First(&customer).Error
+	err := checkErr(d.db.Where(query).First(&customer).Error)
 	return &customer, err
 }
 
@@ -37,11 +35,11 @@ func (d *dao) UpsertCustomer(ctx context.Context, data *model.WxUserResp) (custo
 	if checkErr(err) != nil {
 		return
 	}
-	if err == gorm.ErrRecordNotFound {
+	if customer.ID == 0 {
 		var c model.Customer
 		util.StructCopy(&c, data)
 		c.SetDefaultAttr()
-		if err := d.db.Create(c).Error; err != nil {
+		if err := d.db.Create(&c).Error; err != nil {
 			return nil, err
 		}
 		return d.FindCustomer(ctx, map[string]interface{}{"open_id": data.OpenID})

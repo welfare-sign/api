@@ -29,6 +29,9 @@ definitions:
         type: integer
       id:
         type: integer
+      need_checkin_time:
+        description: 需要签到的日期
+        type: string
       status:
         type: string
       updated_at:
@@ -80,18 +83,6 @@ definitions:
         type: string
       updated_by:
         type: integer
-    type: object
-  model.CustomerLoginResp:
-    properties:
-      checkin_record_list:
-        description: 用户签到信息
-        items:
-          $ref: '#/definitions/model.CheckinRecord'
-        type: array
-      customer:
-        $ref: '#/definitions/model.Customer'
-        description: 用户信息
-        type: object
     type: object
   model.IssueRecord:
     properties:
@@ -232,6 +223,8 @@ definitions:
         type: integer
     required:
     - address
+    - checkin_days
+    - checkin_num
     - contact_phone
     - lat
     - lon
@@ -362,8 +355,7 @@ definitions:
         description: 业务状态码
         type: string
       data:
-        $ref: '#/definitions/model.CustomerLoginResp'
-        type: object
+        type: string
       error:
         description: Error信息
         type: string
@@ -373,14 +365,6 @@ definitions:
       status:
         description: 状态
         type: boolean
-    type: object
-  server.ExecCheckinRecordRequest:
-    properties:
-      day:
-        description: 签到第天数
-        type: integer
-    required:
-    - day
     type: object
   server.ExecCheckinRecordResponse:
     properties:
@@ -445,18 +429,31 @@ definitions:
       customer_id:
         description: 补签客户ID
         type: integer
-      day:
-        description: 为第几天签到
-        type: integer
     required:
     - customer_id
-    - day
     type: object
   server.HelpCheckinResponse:
     properties:
       code:
         description: 业务状态码
         type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.IsSupplementCheckinResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        type: boolean
       error:
         description: Error信息
         type: string
@@ -587,8 +584,6 @@ definitions:
         description: 状态
         type: boolean
     type: object
-  server.RefreshCheckinRecordRequest:
-    type: object
   server.RefreshCheckinRecordResponse:
     properties:
       code:
@@ -652,6 +647,23 @@ definitions:
         description: 状态
         type: boolean
     type: object
+  server.WXPayResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
   server.WriteOffResponse:
     properties:
       code:
@@ -669,6 +681,13 @@ definitions:
       status:
         description: 状态
         type: boolean
+    type: object
+  server.WxpayCallbackRequest:
+    properties:
+      params:
+        type: string
+      response:
+        type: string
     type: object
 info:
   contact: {}
@@ -720,6 +739,11 @@ paths:
       consumes:
       - application/json
       description: get customer checkin record
+      parameters:
+      - description: 当该参数有值时以该参数为准，否则以token用户为准
+        in: query
+        name: customer_id
+        type: string
       produces:
       - application/json
       responses:
@@ -736,14 +760,6 @@ paths:
       consumes:
       - application/json
       description: customer exec checkin record
-      parameters:
-      - description: 参数
-        in: body
-        name: args
-        required: true
-        schema:
-          $ref: '#/definitions/server.ExecCheckinRecordRequest'
-          type: object
       produces:
       - application/json
       responses:
@@ -786,14 +802,6 @@ paths:
       consumes:
       - application/json
       description: customer refresh checkin record
-      parameters:
-      - description: 参数
-        in: body
-        name: args
-        required: true
-        schema:
-          $ref: '#/definitions/server.RefreshCheckinRecordRequest'
-          type: object
       produces:
       - application/json
       responses:
@@ -867,6 +875,23 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 用户领取福利
+      tags:
+      - 客户
+  /customers/issue_records/is_supplement:
+    get:
+      consumes:
+      - application/json
+      description: is supplement checkin
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.IsSupplementCheckinResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 是否是补签
       tags:
       - 客户
   /customers/login:
@@ -1215,6 +1240,48 @@ paths:
           schema:
             $ref: '#/definitions/server.WXConfigResponse'
       summary: 获取微信接口配置
+      tags:
+      - 微信
+  /wx/pay:
+    post:
+      consumes:
+      - application/json
+      description: customer pay
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.WXPayResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户支付
+      tags:
+      - 微信
+  /wx/pay/notify:
+    post:
+      consumes:
+      - application/json
+      description: wx pay callback
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.WxpayCallbackRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 用户支付
       tags:
       - 微信
 securityDefinitions:

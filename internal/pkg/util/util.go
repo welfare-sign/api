@@ -4,11 +4,15 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"net"
+	"net/http"
 	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -112,22 +116,70 @@ func GetWXSignString(values map[string]string) string {
 	sort.Strings(sortedParams)
 
 	//第二步：把所有参数名和参数值串在一起
-	buffer := bytes.Buffer{}
+	buff := bytes.Buffer{}
 	for _, key := range sortedParams {
 		val, ok := values[key]
 		if !ok || len(val) == 0 {
 			continue
 		}
 
-		buffer.WriteString(key)
-		buffer.WriteString("=")
-		buffer.WriteString(val)
-		buffer.WriteString("&")
+		buff.WriteString(key)
+		buff.WriteString("=")
+		buff.WriteString(val)
+		buff.WriteString("&")
 	}
-	buffer.Truncate(buffer.Len() - 1)
+	buff.Truncate(buff.Len() - 1)
 
 	h := sha1.New()
-	h.Write(buffer.Bytes())
+	h.Write(buff.Bytes())
 	bs := h.Sum(nil)
 	return fmt.Sprintf("%x", bs)
+}
+
+// GetIP .
+func GetIP() (ip string) {
+	addr, err := net.InterfaceAddrs()
+	if err != nil {
+		panic(err)
+	}
+
+	for _, address := range addr {
+		// 检查ip地址判断是否回环地址
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				ip = ipnet.IP.String()
+				return
+			}
+		}
+	}
+	return
+}
+
+// Post .
+func Post(xml string, url string) (string, error) {
+	resp, err := http.Post(url, "text/xml", strings.NewReader(xml))
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
+}
+
+// GenerateNonceStr .
+func GenerateNonceStr(length int) string {
+	stem := "HsZPdYr0KeXxI1WcJL2CtDpNfBa3AuMob4v5TgUqOnVk6Ghj7iR8FzwQ9lyEmS"
+	buf := make([]byte, length)
+
+	stemSize := len(stem)
+	rand.Seed(time.Now().UnixNano())
+
+	for i := 0; i < length; i++ {
+		buf[i] = byte(stem[rand.Int()%stemSize])
+	}
+	return string(buf)
 }

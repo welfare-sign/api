@@ -6,16 +6,16 @@ import "time"
 type Customer struct {
 	Base
 
-	OpenID          string    `json:"open_id" gorm:"not null"`                 // 微信用户openid
-	Nickname        string    `json:"nickname"`                                // 微信用户昵称
-	Sex             int       `json:"sex"`                                     // 微信用户性别
-	Country         string    `json:"country"`                                 // 微信用户所在国家
-	Province        string    `json:"province"`                                // 微信用户所在市
-	City            string    `json:"city"`                                    // 微信用户所在区
-	Headimgurl      string    `json:"headimgurl"`                              // 微信用户头像
-	Name            string    `json:"name" gorm:"not null"`                    // 称呼
-	Mobile          string    `json:"mobile" gorm:"type:varchar(50);not null"` // 手机号
-	LastCheckinTime time.Time `json:"last_checkin_time" gorm:"type:datetime"`  // 最后一次签到时间
+	OpenID          string     `json:"open_id" gorm:"not null"`                 // 微信用户openid
+	Nickname        string     `json:"nickname"`                                // 微信用户昵称
+	Sex             int        `json:"sex"`                                     // 微信用户性别
+	Country         string     `json:"country"`                                 // 微信用户所在国家
+	Province        string     `json:"province"`                                // 微信用户所在市
+	City            string     `json:"city"`                                    // 微信用户所在区
+	Headimgurl      string     `json:"headimgurl"`                              // 微信用户头像
+	Name            string     `json:"name" gorm:"not null"`                    // 称呼
+	Mobile          string     `json:"mobile" gorm:"type:varchar(50);not null"` // 手机号
+	LastCheckinTime *time.Time `json:"last_checkin_time" gorm:"type:datetime"`  // 最后一次签到时间
 }
 
 // CustomerListVO 查询顾客列表参数
@@ -40,7 +40,7 @@ type WxErrResp struct {
 
 // WxSuccessResp .
 type WxSuccessResp struct {
-	AaccessToken string `json:"aaccess_token"` // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
+	AccessToken  string `json:"access_token"`  // 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
 	ExpiresIn    int    `json:"expires_in"`    // access_token接口调用凭证超时时间，单位（秒）
 	RefreshToken string `json:"refresh_token"` // 用户刷新access_token,有效期为30天，当refresh_token失效之后，需要用户重新授权。
 	OpenID       string `json:"openid"`        // 用户唯一标识

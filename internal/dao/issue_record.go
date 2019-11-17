@@ -27,8 +27,31 @@ func (d *dao) ListIssueRecord(ctx context.Context, query interface{}, args ...in
 // ListIssueRecordDetail 获取礼包发放记录列表，携带商家、客户信息
 func (d *dao) ListIssueRecordDetail(ctx context.Context, query interface{}, args ...interface{}) ([]*model.IssueRecord, error) {
 	var res []*model.IssueRecord
-	err := checkErr(d.db.Where(query, args...).Find(&res).Related(&model.Merchant{}).Related(&model.Customer{}).Order("CreatedAt DESC").Error)
-	return res, err
+	if err := checkErr(d.db.Where(query, args...).Find(&res).Order("CreatedAt DESC").Error); err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return res, nil
+	}
+
+	for i := 0; i < len(res); i++ {
+		merchant, _ := d.FindMerchant(ctx, map[string]interface{}{
+			"id":     res[i].MerchantID,
+			"status": global.ActiveStatus,
+		})
+		if merchant.ID != 0 {
+			res[i].Merchant = merchant
+		}
+		customer, _ := d.FindCustomer(ctx, map[string]interface{}{
+			"id":     res[i].CustomerID,
+			"status": global.ActiveStatus,
+		})
+		if customer.ID != 0 {
+			res[i].Customer = customer
+		}
+	}
+
+	return res, nil
 }
 
 // CreateIssueRecord create issue record

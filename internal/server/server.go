@@ -77,11 +77,12 @@ func initRouter(e *gin.Engine) {
 		customers.POST("/checkin_record", wsgin.ProcessExec(&ExecCheckinRecordRequest{})) // 签到
 		customers.GET("/qrcode", wsgin.ProcessExec(&QRCodeRequest{}))                     // 获取二维码
 		customers.POST("/login", wsgin.ProcessExec(&CustomerLoginRequest{}))
-		customers.GET("/near_merchant", wsgin.ProcessExec(&NearMerchantRequest{}))                   // 获取附近商家
-		customers.GET("/issue_records", wsgin.ProcessExec(&IssueRecordRequest{}))                    // 查看我的福利
-		customers.POST("/issue_records", wsgin.ProcessExec(&ExecIssueRecordRequest{}))               // 领取福利
-		customers.POST("/checkin_record/refresh", wsgin.ProcessExec(&RefreshCheckinRecordRequest{})) // 用户重新签到
-		customers.POST("/checkin_record/help", wsgin.ProcessExec(&HelpCheckinRequest{}))             // 帮助他人签到
+		customers.GET("/near_merchant", wsgin.ProcessExec(&NearMerchantRequest{}))                      // 获取附近商家
+		customers.GET("/issue_records", wsgin.ProcessExec(&IssueRecordRequest{}))                       // 查看我的福利
+		customers.POST("/issue_records", wsgin.ProcessExec(&ExecIssueRecordRequest{}))                  // 领取福利
+		customers.POST("/checkin_record/refresh", wsgin.ProcessExec(&RefreshCheckinRecordRequest{}))    // 用户重新签到
+		customers.POST("/checkin_record/help", wsgin.ProcessExec(&HelpCheckinRequest{}))                // 帮助他人签到
+		customers.GET("/issue_records/is_supplement", wsgin.ProcessExec(&IsSupplementCheckinRequest{})) // 是否是补签
 	}
 
 	// 验证码
@@ -93,6 +94,8 @@ func initRouter(e *gin.Engine) {
 	wx := v1.Group("/wx")
 	{
 		wx.GET("/config", wsgin.ProcessExec(&WXConfigRequest{}))
+		wx.POST("/pay", wsgin.ProcessExec(&WXPayRequest{}))
+		wx.POST("/pay/notify", wsgin.ProcessExec(&WxpayCallbackRequest{}))
 	}
 }
 

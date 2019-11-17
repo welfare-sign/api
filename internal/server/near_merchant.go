@@ -50,7 +50,12 @@ func (r *NearMerchantRequest) Extract(c *gin.Context) (code wsgin.APICode, err e
 // @Router /customers/near_merchant [get]
 func (r *NearMerchantRequest) Exec(ctx context.Context) interface{} {
 	resp := NearMerchantResponse{}
-
+	if r.Distince == 0 {
+		r.Distince = 10
+	}
+	if r.Num == 0 {
+		r.Num = 4
+	}
 	data, code, err := svc.CustomerNearMerchant(ctx, &model.NearMerchantVO{
 		Lon:      r.Lon,
 		Lat:      r.Lat,

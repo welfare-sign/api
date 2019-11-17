@@ -25,6 +25,10 @@ const (
 	ErrRefreshCheckinRecord wsgin.APICode = "ERR_REFRESH_CHECKIN_RECORD"
 	ErrHelpCheckin          wsgin.APICode = "ERR_HELP_CHECKIN"
 	ErrGetWXConfig          wsgin.APICode = "ERR_GET_WXCONFIG"
+	ErrWXPay                wsgin.APICode = "ERR_WX_PAY"
+	ErrHasHelpCheckin       wsgin.APICode = "ERR_HAS_HELP_CHECKIN"
+	ErrWXPayNotify          wsgin.APICode = "ERR_WX_PAY_NOTIFY"
+	ErrGetIsSupplement      wsgin.APICode = "ERR_GET_IS_SUPPLEMENT"
 )
 
 func init() {
@@ -49,4 +53,8 @@ func init() {
 	wsgin.APICodeMapZH[ErrRefreshCheckinRecord] = "执行重新签到失败"
 	wsgin.APICodeMapZH[ErrHelpCheckin] = "帮签失败"
 	wsgin.APICodeMapZH[ErrGetWXConfig] = "获取微信接口配置时发生错误"
+	wsgin.APICodeMapZH[ErrWXPay] = "支付失败"
+	wsgin.APICodeMapZH[ErrHasHelpCheckin] = "本轮您已经帮签过了,请下轮再来"
+	wsgin.APICodeMapZH[ErrWXPayNotify] = "接收微信支付回调失败"
+	wsgin.APICodeMapZH[ErrGetIsSupplement] = "获取是否补签失败"
 }

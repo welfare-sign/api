@@ -11,8 +11,7 @@ import (
 type HelpCheckinRequest struct {
 	wsgin.AuthRequest
 
-	CustomerID uint64 `json:"customer_id" binding:"required"` // 补签客户ID
-	Day        uint64 `json:"day" binding:"required"`         // 为第几天签到
+	CustomerID uint64 `form:"customer_id" json:"customer_id" binding:"required"` // 补签客户ID
 }
 
 // HelpCheckinResponse .
@@ -43,7 +42,7 @@ func (r *HelpCheckinRequest) Extract(c *gin.Context) (code wsgin.APICode, err er
 func (r *HelpCheckinRequest) Exec(ctx context.Context) interface{} {
 	resp := HelpCheckinResponse{}
 
-	code, err := svc.HelpCheckinRecord(ctx, r.TokenParames.UID, r.CustomerID, r.Day)
+	code, err := svc.HelpCheckinRecord(ctx, r.TokenParames.UID, r.CustomerID)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	return resp
 }

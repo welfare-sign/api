@@ -10,8 +10,6 @@ import (
 // ExecCheckinRecordRequest .
 type ExecCheckinRecordRequest struct {
 	wsgin.AuthRequest
-
-	Day uint64 `form:"day" json:"day" binding:"required"` // 签到第天数
 }
 
 // ExecCheckinRecordResponse .
@@ -36,13 +34,12 @@ func (r *ExecCheckinRecordRequest) Extract(c *gin.Context) (code wsgin.APICode, 
 // @Tags 客户
 // @Accept json
 // @Produce json
-// @Param args body server.ExecCheckinRecordRequest true "参数"
 // @Success 200 {object} server.ExecCheckinRecordResponse	"{"status":true}"
 // @Router /customers/checkin_record [post]
 func (r *ExecCheckinRecordRequest) Exec(ctx context.Context) interface{} {
 	resp := ExecCheckinRecordResponse{}
 
-	code, err := svc.ExecCheckinRecord(ctx, r.TokenParames.UID, r.Day)
+	code, err := svc.ExecCheckinRecord(ctx, r.TokenParames.UID)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	return resp
 }
