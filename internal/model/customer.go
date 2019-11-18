@@ -22,6 +22,7 @@ type Customer struct {
 type CustomerListVO struct {
 	Name     string `form:"name" json:"name"`
 	Mobile   string `form:"mobile" json:"mobile"`
+	Status   string `form:"status" json:"status"`
 	PageNo   int    `form:"page_no" json:"page_no"`
 	PageSize int    `form:"page_size" json:"page_size"`
 }

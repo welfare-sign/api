@@ -45,6 +45,10 @@ type Dao interface {
 	GetUnchecked(ctx context.Context, customerID uint64) (*model.CheckinRecord, error)
 	PayCheckin(ctx context.Context, checkRecordID, customerID uint64, payRecord *model.WXPayRecord) error
 	FindWXPayRecord(ctx context.Context, query map[string]interface{}) (*model.WXPayRecord, error)
+	UpdateMerchant(ctx context.Context, data *model.Merchant) error
+	DeleteMerchant(ctx context.Context, merchantID uint64)
+	UpdateCustomer(ctx context.Context, data *model.Customer) error
+	DeleteCustomer(ctx context.Context, customerID uint64)
 }
 
 // dao dao.

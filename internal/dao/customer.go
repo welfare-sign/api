@@ -48,3 +48,14 @@ func (d *dao) UpsertCustomer(ctx context.Context, data *model.WxUserResp) (custo
 	util.StructCopy(&customer, data)
 	return customer, d.db.Save(customer).Error
 }
+
+// UpdateCustomer 更新客户信息
+func (d *dao) UpdateCustomer(ctx context.Context, data *model.Customer) error {
+	return d.db.Save(data).Error
+}
+
+// DeleteCustomer 删除客户信息
+func (d *dao) DeleteCustomer(ctx context.Context, customerID uint64) {
+	d.db.Delete(model.Customer{}, "id = ?", customerID)
+	return
+}

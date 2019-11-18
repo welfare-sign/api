@@ -15,6 +15,7 @@ type CustomerListRequest struct {
 
 	Name   string `json:"name" form:"name" example:"用户名"`
 	Mobile string `json:"mobile" form:"mobile" binding:"omitempty,mobile" example:"联系电话"`
+	Status string `form:"status" json:"status"` // 客户状态：A(正常状态)，X(禁用状态)，不传代表全部状态
 }
 
 // CustomerListResponse .
@@ -43,6 +44,7 @@ func (r *CustomerListRequest) Extract(c *gin.Context) (code wsgin.APICode, err e
 // @Produce json
 // @Param name query string false "用户名"
 // @Param mobile query string false "联系电话"
+// @Param status query string false "客户状态"
 // @Param page_no query int false "页码" default(1)
 // @Param page_size query int false "页数" default(10)
 // @Success 200 {object} server.CustomerListResponse	"{"status":true}"
@@ -53,6 +55,7 @@ func (r *CustomerListRequest) Exec(ctx context.Context) interface{} {
 	data, total, code, err := svc.GetCustomerList(ctx, &model.CustomerListVO{
 		Name:     r.Name,
 		Mobile:   r.Mobile,
+		Status:   r.Status,
 		PageNo:   r.PageNo,
 		PageSize: r.PageSize,
 	})

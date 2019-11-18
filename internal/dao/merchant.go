@@ -18,7 +18,7 @@ id, (
   )
 ) AS distance
 FROM merchant
-WHERE received + checkin_num <= total_receive
+WHERE received + checkin_num <= total_receive AND status = 'A' 
 HAVING distance <= ?
 ORDER BY distance ASC
 LIMIT ?;`
@@ -98,4 +98,15 @@ func (d *dao) NearMerchant(ctx context.Context, data *model.NearMerchantVO) ([]*
 		return nil, err
 	}
 	return merchants, nil
+}
+
+// UpdateMerchant 更新商户信息
+func (d *dao) UpdateMerchant(ctx context.Context, data *model.Merchant) error {
+	return d.db.Save(data).Error
+}
+
+// DeleteMerchant 删除商户信息
+func (d *dao) DeleteMerchant(ctx context.Context, merchantID uint64) {
+	d.db.Delete(model.Merchant{}, "id = ?", merchantID)
+	return
 }

@@ -16,6 +16,7 @@ type MerchantListRequest struct {
 	StoreName    string `json:"store_name" form:"store_name" example:"商户名"`
 	ContactName  string `json:"contact_name" form:"contact_name" example:"联系人"`
 	ContactPhone string `json:"contact_phone" form:"contact_phone" binding:"omitempty,mobile" example:"联系电话"`
+	Status       string `form:"status" json:"status"` // 商户状态：A(正常状态)，X(禁用状态)，不传代表全部状态
 }
 
 // MerchantListResponse .
@@ -45,6 +46,7 @@ func (r *MerchantListRequest) Extract(c *gin.Context) (code wsgin.APICode, err e
 // @Param store_name query string false "商户名"
 // @Param contact_name query string false "联系人"
 // @Param contact_phone query string false "联系电话"
+// @Param status query string false "商户状态"
 // @Param page_no query int false "页码" default(1)
 // @Param page_size query int false "页数" default(10)
 // @Success 200 {object} server.MerchantListResponse	"{"status":true}"
@@ -56,6 +58,7 @@ func (r *MerchantListRequest) Exec(ctx context.Context) interface{} {
 		StoreName:    r.StoreName,
 		ContactName:  r.ContactName,
 		ContactPhone: r.ContactPhone,
+		Status:       r.Status,
 		PageNo:       r.PageNo,
 		PageSize:     r.PageSize,
 	})

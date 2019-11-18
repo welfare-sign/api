@@ -53,6 +53,9 @@ func initRouter(e *gin.Engine) {
 		merchants.GET("/detail", wsgin.ProcessExec(&MerchantDetailRequest{}))
 		merchants.GET("/writeoff", wsgin.ProcessExec(&WriteOffRequest{}))
 		merchants.POST("/writeoff", wsgin.ProcessExec(&ExecWriteOffRequest{}))
+		merchants.PUT("", wsgin.ProcessExec(&MerchantEditRequest{}))
+		merchants.POST("/disable", wsgin.ProcessExec(&MerchantDisableRequest{}))
+		merchants.DELETE("", wsgin.ProcessExec(&MerchantDelRequest{}))
 	}
 
 	// 后台用户
@@ -83,6 +86,8 @@ func initRouter(e *gin.Engine) {
 		customers.POST("/checkin_record/refresh", wsgin.ProcessExec(&RefreshCheckinRecordRequest{}))    // 用户重新签到
 		customers.POST("/checkin_record/help", wsgin.ProcessExec(&HelpCheckinRequest{}))                // 帮助他人签到
 		customers.GET("/issue_records/is_supplement", wsgin.ProcessExec(&IsSupplementCheckinRequest{})) // 是否是补签
+		customers.POST("/disable", wsgin.ProcessExec(&CustomerDisableRequest{}))
+		customers.DELETE("", wsgin.ProcessExec(&CustomerDelRequest{}))
 	}
 
 	// 验证码

@@ -29,6 +29,9 @@ const (
 	ErrHasHelpCheckin       wsgin.APICode = "ERR_HAS_HELP_CHECKIN"
 	ErrWXPayNotify          wsgin.APICode = "ERR_WX_PAY_NOTIFY"
 	ErrGetIsSupplement      wsgin.APICode = "ERR_GET_IS_SUPPLEMENT"
+	ErrEditMerchant         wsgin.APICode = "ERR_EDIT_MERCHANT"
+	ErrDisable              wsgin.APICode = "ERR_DISABLE"
+	ErrHasDisable           wsgin.APICode = "ERR_HAS_DISABLE"
 )
 
 func init() {
@@ -57,4 +60,7 @@ func init() {
 	wsgin.APICodeMapZH[ErrHasHelpCheckin] = "本轮您已经帮签过了,请下轮再来"
 	wsgin.APICodeMapZH[ErrWXPayNotify] = "接收微信支付回调失败"
 	wsgin.APICodeMapZH[ErrGetIsSupplement] = "获取是否补签失败"
+	wsgin.APICodeMapZH[ErrEditMerchant] = "编辑商户失败"
+	wsgin.APICodeMapZH[ErrDisable] = "禁用失败"
+	wsgin.APICodeMapZH[ErrHasDisable] = "该商户已被禁用，请勿重复操作"
 }

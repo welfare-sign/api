@@ -32,6 +32,9 @@ func (s *Service) GetCustomerList(ctx context.Context, vo *model.CustomerListVO)
 	if vo.Mobile != "" {
 		query["mobile"] = vo.Mobile
 	}
+	if vo.Status != "" {
+		query["status"] = vo.Status
+	}
 	if vo.PageNo == 0 {
 		vo.PageNo = 1
 	}
@@ -48,9 +51,15 @@ func (s *Service) GetCustomerList(ctx context.Context, vo *model.CustomerListVO)
 
 // GetCustomerDetail 获取客户详情
 func (s *Service) GetCustomerDetail(ctx context.Context, customerID uint64) (*model.Customer, wsgin.APICode, error) {
-	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{"id": customerID})
+	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{
+		"id":     customerID,
+		"status": global.ActiveStatus,
+	})
 	if err != nil {
 		return nil, apicode.ErrDetail, err
+	}
+	if customer.ID == 0 {
+		return nil, wsgin.APICodeSuccess, nil
 	}
 	return customer, wsgin.APICodeSuccess, nil
 }
@@ -102,6 +111,18 @@ func (s *Service) CustomerLogin(ctx context.Context, c string) (string, wsgin.AP
 	}
 	if err := json.Unmarshal(bytes, &successResp); err != nil {
 		return "", apicode.ErrLogin, err
+	}
+
+	// 查看该用户是否被禁用
+	disableCustomer, err := s.dao.FindCustomer(ctx, map[string]interface{}{
+		"open_id": successResp.OpenID,
+		"status":  global.DeleteStatus,
+	})
+	if err != nil {
+		return "", apicode.ErrLogin, err
+	}
+	if disableCustomer.ID != 0 {
+		return "", apicode.ErrLogin, errors.New("用户已被禁用")
 	}
 
 	// 使用access_token + openid获取用户信息
@@ -217,6 +238,9 @@ func (s *Service) ExecIssueRecords(ctx context.Context, customerID, merchantID u
 	if err != nil {
 		return apicode.ErrExecIssueRecord, err
 	}
+	if merchant.ID == 0 {
+		return apicode.ErrExecIssueRecord, errors.New("该商户已被禁用")
+	}
 	if merchant.Received >= merchant.TotalReceive {
 		return apicode.ErrExecIssueRecord, errors.New("该商家的福利已被领完了")
 	}
@@ -307,4 +331,28 @@ func (s *Service) IsSupplement(ctx context.Context, customerID uint64) (bool, ws
 		return true, wsgin.APICodeSuccess, nil
 	}
 	return false, wsgin.APICodeSuccess, nil
+}
+
+// DisableCustomer 禁用客户
+func (s *Service) DisableCustomer(ctx context.Context, customerID uint64) (wsgin.APICode, error) {
+	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{
+		"id": customerID,
+	})
+	if err != nil || customer.ID == 0 {
+		return apicode.ErrDisable, err
+	}
+	if customer.Status == global.DeleteStatus {
+		return apicode.ErrHasDisable, errors.New("用户已经被禁用")
+	}
+	customer.Status = global.DeleteStatus
+	if err := s.dao.UpdateCustomer(ctx, customer); err != nil {
+		return apicode.ErrDisable, err
+	}
+	return wsgin.APICodeSuccess, nil
+}
+
+// DeleteCustomer 删除客户
+func (s *Service) DeleteCustomer(ctx context.Context, customerID uint64) (wsgin.APICode, error) {
+	s.dao.DeleteCustomer(ctx, customerID)
+	return wsgin.APICodeSuccess, nil
 }

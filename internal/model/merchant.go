@@ -41,6 +41,7 @@ type MerchantListVO struct {
 	StoreName    string `form:"store_name" json:"store_name"`
 	ContactName  string `form:"contact_name" json:"contact_name"`
 	ContactPhone string `form:"contact_phone" json:"contact_phone"`
+	Status       string `form:"status" json:"status"`
 	PageNo       int    `form:"page_no" json:"page_no"`
 	PageSize     int    `form:"page_size" json:"page_size"`
 }

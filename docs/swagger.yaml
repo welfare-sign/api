@@ -306,6 +306,27 @@ definitions:
         description: 状态
         type: boolean
     type: object
+  server.CustomerDelRequest:
+    properties:
+      customer_id:
+        description: 客户ID
+        type: integer
+    type: object
+  server.CustomerDelResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
   server.CustomerDetailResponse:
     properties:
       code:
@@ -314,6 +335,27 @@ definitions:
       data:
         $ref: '#/definitions/model.Customer'
         type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.CustomerDisableRequest:
+    properties:
+      customer_id:
+        description: 客户ID
+        type: integer
+    type: object
+  server.CustomerDisableResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
       error:
         description: Error信息
         type: string
@@ -504,6 +546,27 @@ definitions:
         description: 状态
         type: boolean
     type: object
+  server.MerchantDelRequest:
+    properties:
+      merchant_id:
+        description: 商户ID
+        type: integer
+    type: object
+  server.MerchantDelResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
   server.MerchantDetailResponse:
     properties:
       code:
@@ -512,6 +575,52 @@ definitions:
       data:
         $ref: '#/definitions/model.Merchant'
         type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.MerchantDisableRequest:
+    properties:
+      merchant_id:
+        description: 商户ID
+        type: integer
+    type: object
+  server.MerchantDisableResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.MerchantEditRequest:
+    properties:
+      merchant:
+        $ref: '#/definitions/model.MerchantVO'
+        description: 商户信息
+        type: object
+      merchant_id:
+        description: 商户ID
+        type: integer
+    type: object
+  server.MerchantEditResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
       error:
         description: Error信息
         type: string
@@ -699,6 +808,30 @@ info:
   version: "1.0"
 paths:
   /customers:
+    delete:
+      consumes:
+      - application/json
+      description: delete customer
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.CustomerDelRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.CustomerDelResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除客户
+      tags:
+      - 客户
     get:
       consumes:
       - application/json
@@ -711,6 +844,10 @@ paths:
       - description: 联系电话
         in: query
         name: mobile
+        type: string
+      - description: 客户状态
+        in: query
+        name: status
         type: string
       - default: 1
         description: 页码
@@ -834,6 +971,31 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取客户详情
+      tags:
+      - 客户
+  /customers/disable:
+    post:
+      consumes:
+      - application/json
+      description: disable customer
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.CustomerDisableRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.CustomerDisableResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 禁用客户
       tags:
       - 客户
   /customers/issue_records:
@@ -1023,6 +1185,30 @@ paths:
       tags:
       - 文件
   /merchants:
+    delete:
+      consumes:
+      - application/json
+      description: delete merchant
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.MerchantDelRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.MerchantDelResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除商户
+      tags:
+      - 商户
     get:
       consumes:
       - application/json
@@ -1039,6 +1225,10 @@ paths:
       - description: 联系电话
         in: query
         name: contact_phone
+        type: string
+      - description: 商户状态
+        in: query
+        name: status
         type: string
       - default: 1
         description: 页码
@@ -1086,6 +1276,30 @@ paths:
       summary: 新增商户
       tags:
       - 商户
+    put:
+      consumes:
+      - application/json
+      description: edit merchant
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.MerchantEditRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.MerchantEditResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 编辑商户
+      tags:
+      - 商户
   /merchants/detail:
     get:
       consumes:
@@ -1106,6 +1320,31 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取商户详情信息
+      tags:
+      - 商户
+  /merchants/disable:
+    post:
+      consumes:
+      - application/json
+      description: disable merchant
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.MerchantDisableRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.MerchantDisableResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 禁用商户
       tags:
       - 商户
   /merchants/login:
