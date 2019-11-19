@@ -34,7 +34,7 @@ type Dao interface {
 	ExecCheckin(ctx context.Context, customerID uint64) error
 	ListIssueRecord(ctx context.Context, query interface{}, args ...interface{}) ([]*model.IssueRecord, error)
 	ListIssueRecordDetail(ctx context.Context, query interface{}, args ...interface{}) ([]*model.IssueRecord, error)
-	CreateIssueRecord(ctx context.Context, data model.IssueRecord) error
+	CreateIssueRecord(ctx context.Context, data model.IssueRecord, merchant *model.Merchant) error
 	InvalidCheckin(ctx context.Context, customerID uint64) error
 	HelpCheckin(ctx context.Context, checkRecordID, customerID, helpCustomerID uint64) error
 	StoreWXAccessToken(ak string, expire time.Duration) error

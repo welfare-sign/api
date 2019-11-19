@@ -55,7 +55,7 @@ func (d *dao) ListIssueRecordDetail(ctx context.Context, query interface{}, args
 }
 
 // CreateIssueRecord create issue record
-func (d *dao) CreateIssueRecord(ctx context.Context, data model.IssueRecord) error {
+func (d *dao) CreateIssueRecord(ctx context.Context, data model.IssueRecord, merchant *model.Merchant) error {
 	tx := d.db.Begin()
 
 	data.SetDefaultAttr()
@@ -70,6 +70,11 @@ func (d *dao) CreateIssueRecord(ctx context.Context, data model.IssueRecord) err
 	}).Update("status", global.InactiveStatus).Error; err != nil {
 		tx.Rollback()
 		log.Warn(ctx, "CreateIssueRecord.Update() error", zap.Error(err))
+		return err
+	}
+	if err := tx.Save(merchant).Error; err != nil {
+		log.Warn(ctx, "CreateIssueRecord.SaveMerchant() error", zap.Error(err))
+		tx.Rollback()
 		return err
 	}
 	tx.Commit()

@@ -16,7 +16,7 @@ func (d *dao) ListCustomer(ctx context.Context, query interface{}, pageNo, pageS
 	if err := d.db.Where(query).Limit(pageSize).Offset((pageNo - 1) * pageSize).Order("created_at desc").Find(&customers).Error; mysql.IsError(err) {
 		return customers, total, err
 	}
-	if err := d.db.Where(query).Find(&model.Customer{}).Count(&total).Error; mysql.IsError(err) {
+	if err := d.db.Model(&model.Customer{}).Where(query).Count(&total).Error; mysql.IsError(err) {
 		return customers, total, err
 	}
 	return customers, total, nil

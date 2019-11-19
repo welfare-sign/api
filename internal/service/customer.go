@@ -244,13 +244,13 @@ func (s *Service) ExecIssueRecords(ctx context.Context, customerID, merchantID u
 	if merchant.Received >= merchant.TotalReceive {
 		return apicode.ErrExecIssueRecord, errors.New("该商家的福利已被领完了")
 	}
-
+	merchant.Received += merchant.CheckinNum
 	var issueRecord model.IssueRecord
 	issueRecord.MerchantID = merchantID
 	issueRecord.CustomerID = customerID
 	issueRecord.TotalReceive = merchant.CheckinNum
 	issueRecord.Received = 0
-	if err := s.dao.CreateIssueRecord(ctx, issueRecord); err != nil {
+	if err := s.dao.CreateIssueRecord(ctx, issueRecord, merchant); err != nil {
 		return apicode.ErrExecIssueRecord, err
 	}
 	return wsgin.APICodeSuccess, nil

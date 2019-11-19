@@ -38,7 +38,7 @@ func (d *dao) ListMerchant(ctx context.Context, query interface{}, pageNo, pageS
 	if mysql.IsError(err) {
 		return merchants, total, err
 	}
-	if err := d.db.Where(query).Find(&model.Merchant{}).Count(&total).Error; mysql.IsError(err) {
+	if err := d.db.Model(&model.Merchant{}).Where(query).Count(&total).Error; mysql.IsError(err) {
 		return merchants, total, err
 	}
 	return merchants, total, nil
