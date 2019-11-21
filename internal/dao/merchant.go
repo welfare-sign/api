@@ -7,7 +7,8 @@ import (
 	"welfare-sign/internal/model"
 )
 
-const nearMerchantSQL = `SELECT
+const (
+	nearMerchantSQL = `SELECT
 id, (
 	6371 * acos (
 	cos ( radians(?) )
@@ -22,6 +23,13 @@ WHERE received + checkin_num <= total_receive AND status = 'A'
 HAVING distance <= ?
 ORDER BY distance ASC
 LIMIT ?;`
+	getRoundMerchantPosterSQL = `
+	SELECT *
+FROM merchant AS t1 JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM merchant)-(SELECT MIN(id) FROM merchant))+(SELECT MIN(id) FROM merchant)) AS id) AS t2
+WHERE t1.id >= t2.id
+ORDER BY t1.id LIMIT 1;
+	`
+)
 
 // CreateMerchant create merchant
 func (d *dao) CreateMerchant(ctx context.Context, data model.Merchant) error {
@@ -109,4 +117,11 @@ func (d *dao) UpdateMerchant(ctx context.Context, data *model.Merchant) error {
 func (d *dao) DeleteMerchant(ctx context.Context, merchantID uint64) {
 	d.db.Delete(model.Merchant{}, "id = ?", merchantID)
 	return
+}
+
+// GetRoundMerchantPoster 获取商户随机该报
+func (d *dao) GetRoundMerchantPoster() (*model.Merchant, error) {
+	var merchant model.Merchant
+	err := checkErr(d.db.Raw(getRoundMerchantPosterSQL).Find(&merchant).Error)
+	return &merchant, err
 }

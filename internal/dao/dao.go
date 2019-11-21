@@ -49,6 +49,8 @@ type Dao interface {
 	DeleteMerchant(ctx context.Context, merchantID uint64)
 	UpdateCustomer(ctx context.Context, data *model.Customer) error
 	DeleteCustomer(ctx context.Context, customerID uint64)
+	GetRoundMerchantPoster() (*model.Merchant, error)
+	DelSMSCode(ctx context.Context, mobile string) error
 }
 
 // dao dao.

@@ -63,6 +63,7 @@ type MerchantWriteOffRespVO struct {
 	Merchant    *Merchant    `json:"merchant"`
 	Customer    *Customer    `json:"customer"`
 	IssueRecord *IssueRecord `json:"issue_record"`
+	Num         uint64       `json:"num"`
 }
 
 // MerchantExecWriteOffVO 商户执行核销参数

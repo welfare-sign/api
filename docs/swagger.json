@@ -901,6 +901,34 @@
                 }
             }
         },
+        "/merchants/poster": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get merchant poster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商户"
+                ],
+                "summary": "获取商户随机一张海报",
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/merchants/writeoff": {
             "get": {
                 "security": [
@@ -1480,6 +1508,9 @@
                 "merchant": {
                     "type": "object",
                     "$ref": "#/definitions/model.Merchant"
+                },
+                "num": {
+                    "type": "integer"
                 }
             }
         },
@@ -1771,7 +1802,21 @@
             }
         },
         "server.ExecWriteOffRequest": {
-            "type": "object"
+            "type": "object",
+            "required": [
+                "customer_id",
+                "num"
+            ],
+            "properties": {
+                "customer_id": {
+                    "description": "客户ID",
+                    "type": "integer"
+                },
+                "num": {
+                    "description": "核销数目",
+                    "type": "integer"
+                }
+            }
         },
         "server.ExecWriteOffResponse": {
             "type": "object",

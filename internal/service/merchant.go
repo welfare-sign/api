@@ -2,14 +2,17 @@ package service
 
 import (
 	"context"
+	"io/ioutil"
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"welfare-sign/internal/apicode"
 	"welfare-sign/internal/global"
 	"welfare-sign/internal/model"
+	"welfare-sign/internal/pkg/config"
 	"welfare-sign/internal/pkg/jwt"
 	"welfare-sign/internal/pkg/log"
 	"welfare-sign/internal/pkg/util"
@@ -79,9 +82,14 @@ func (s *Service) MerchantLogin(ctx context.Context, vo *model.MerchantLoginVO) 
 	if merchant.ID == 0 {
 		return "", apicode.ErrLogin, errors.New("用户不存在或被禁用")
 	}
-	if err := s.ValidateCode(ctx, vo.ContactPhone, vo.Code); err != nil {
-		log.Info(ctx, "MerchantLogin.ValidateCode() error", zap.Error(err))
-		return "", apicode.ErrLogin, err
+	if viper.GetBool(config.KeySMSEnable) {
+		if err := s.ValidateCode(ctx, vo.ContactPhone, vo.Code); err != nil {
+			log.Info(ctx, "MerchantLogin.ValidateCode() error", zap.Error(err))
+			return "", apicode.ErrLogin, err
+		}
+		if err := s.dao.DelSMSCode(ctx, vo.ContactPhone); err != nil {
+			log.Info(ctx, "MerchantLogin.DelSMSCode() error", zap.Error(err))
+		}
 	}
 	token, err := jwt.CreateToken(merchant.ID, merchant.ContactName, merchant.ContactPhone)
 	if err != nil {
@@ -157,6 +165,7 @@ func (s *Service) ExecWriteOff(ctx context.Context, vo *model.MerchantExecWriteO
 	if err != nil {
 		return nil, apicode.ErrExecWriteOff, errors.New("核销数目不正确")
 	}
+	resp.Num = vo.Num
 	return resp, wsgin.APICodeSuccess, nil
 }
 
@@ -214,4 +223,18 @@ func (s *Service) DisableMerchant(ctx context.Context, merchantID uint64) (wsgin
 func (s *Service) DeleteMerchant(ctx context.Context, merchantID uint64) (wsgin.APICode, error) {
 	s.dao.DeleteMerchant(ctx, merchantID)
 	return wsgin.APICodeSuccess, nil
+}
+
+// GetRoundMerchantPoster 获取商户随机一张海报
+func (s *Service) GetRoundMerchantPoster(ctx context.Context) ([]byte, error) {
+	merchant, err := s.dao.GetRoundMerchantPoster()
+	if err != nil || merchant.ID == 0 {
+		return nil, err
+	}
+	filepath := "upload/poster/" + merchant.Poster
+	bytes, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
 }

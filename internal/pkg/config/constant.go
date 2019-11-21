@@ -26,6 +26,7 @@ const (
 	KeySMSTemplate = "sms.template"
 	KeySMSLength   = "sms.length"
 	KeySMSExpire   = "sms.expire"
+	KeySMSEnable   = "sms.enable"
 
 	KeyWxAppID     = "wx.appid"
 	KeyWxAppSecret = "wx.appsecret"

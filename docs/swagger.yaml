@@ -243,6 +243,8 @@ definitions:
       merchant:
         $ref: '#/definitions/model.Merchant'
         type: object
+      num:
+        type: integer
     type: object
   model.WXConfigResp:
     properties:
@@ -447,6 +449,16 @@ definitions:
         type: boolean
     type: object
   server.ExecWriteOffRequest:
+    properties:
+      customer_id:
+        description: 客户ID
+        type: integer
+      num:
+        description: 核销数目
+        type: integer
+    required:
+    - customer_id
+    - num
     type: object
   server.ExecWriteOffResponse:
     properties:
@@ -1368,6 +1380,23 @@ paths:
           schema:
             $ref: '#/definitions/server.MerchantLoginResponse'
       summary: 商户登录
+      tags:
+      - 商户
+  /merchants/poster:
+    get:
+      consumes:
+      - application/json
+      description: get merchant poster
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取商户随机一张海报
       tags:
       - 商户
   /merchants/writeoff:

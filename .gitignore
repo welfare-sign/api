@@ -6,3 +6,4 @@ log/*
 upload/*
 config/*
 docs/*
+.air.conf

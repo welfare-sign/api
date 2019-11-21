@@ -21,3 +21,8 @@ func (d *dao) SaveSMSCode(ctx context.Context, mobile, code string) error {
 func (d *dao) GetSMSCode(ctx context.Context, mobile string) (string, error) {
 	return d.cache.Get(KeyCacheSMSCodePrefix + mobile).Result()
 }
+
+// DelSMSCode 删除保存的code
+func (d *dao) DelSMSCode(ctx context.Context, mobile string) error {
+	return checkCacheError(d.cache.Del(KeyCacheSMSCodePrefix + mobile).Err())
+}

@@ -13,8 +13,8 @@ import (
 type ExecWriteOffRequest struct {
 	wsgin.AuthRequest
 
-	CustomerID uint64 `form:"customer_id" json:"customer_id" binding:"required" example:"客户ID"`
-	Num        uint64 `form:"num" json:"num" binding:"required" example:"核销数目"`
+	CustomerID uint64 `form:"customer_id" json:"customer_id" binding:"required"` // 客户ID
+	Num        uint64 `form:"num" json:"num" binding:"required"`                 // 核销数目
 }
 
 // ExecWriteOffResponse .

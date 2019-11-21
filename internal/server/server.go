@@ -56,6 +56,7 @@ func initRouter(e *gin.Engine) {
 		merchants.PUT("", wsgin.ProcessExec(&MerchantEditRequest{}))
 		merchants.POST("/disable", wsgin.ProcessExec(&MerchantDisableRequest{}))
 		merchants.DELETE("", wsgin.ProcessExec(&MerchantDelRequest{}))
+		merchants.GET("/poster", wsgin.ProcessExec(&MerchantPosterRequest{}))
 	}
 
 	// 后台用户
