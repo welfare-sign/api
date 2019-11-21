@@ -8,7 +8,7 @@ import (
 	"welfare-sign/internal/pkg/util"
 )
 
-// 统一下单
+// UnifiedOrder 统一下单
 func UnifiedOrder(inputObj *WxPagePayRequest) (*WxPagePayRequest, error) {
 	url := "https://api.mch.weixin.qq.com/pay/unifiedorder"
 	//检查必填参数

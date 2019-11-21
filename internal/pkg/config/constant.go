@@ -36,4 +36,5 @@ const (
 	KeyWXPayMchID     = "wx.pay_mch_id"
 	KeyWXPayAPI       = "wx.pay_api_key"
 	KeyWXPayNotifyURL = "wx.pay_notify_url"
+	KeyWXPayAmount    = "wx.pay_amount"
 )

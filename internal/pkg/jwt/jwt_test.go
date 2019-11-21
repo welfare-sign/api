@@ -6,6 +6,6 @@ import (
 )
 
 func TestCreateToken(t *testing.T) {
-	got, err := CreateToken(1, "NPC", "")
-	fmt.Println(got, err)
+	got, _ := CreateToken(3, "NPC", "")
+	fmt.Println(got)
 }

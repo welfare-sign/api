@@ -97,6 +97,7 @@ func initRouter(e *gin.Engine) {
 		smscode.GET("", wsgin.ProcessExec(&CodeRequest{}))
 	}
 
+	// 微信支付
 	wx := v1.Group("/wx")
 	{
 		wx.GET("/config", wsgin.ProcessExec(&WXConfigRequest{}))

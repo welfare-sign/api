@@ -314,7 +314,7 @@ func (s *Service) IsSupplement(ctx context.Context, customerID uint64) (bool, ws
 		return false, apicode.ErrGetIsSupplement, err
 	}
 	if len(records) == 0 {
-		return false, apicode.ErrGetIsSupplement, err
+		return false, wsgin.APICodeSuccess, nil
 	}
 	lastRecord := records[len(records)-1]
 	if lastRecord.HelpCheckinCustomerID != 0 {

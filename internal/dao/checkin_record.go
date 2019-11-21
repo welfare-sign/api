@@ -92,10 +92,7 @@ func (d *dao) ExecCheckin(ctx context.Context, customerID uint64) error {
 
 // InvalidCheckin 作废用户签到记录
 func (d *dao) InvalidCheckin(ctx context.Context, customerID uint64) error {
-	return checkErr(d.db.Model(&model.CheckinRecord{}).Where(map[string]interface{}{
-		"status":      global.ActiveStatus,
-		"customer_id": customerID,
-	}).Update("status", global.InactiveStatus).Error)
+	return checkErr(d.db.Model(&model.CheckinRecord{}).Where("status <> ? AND customer_id = ?", global.DeleteStatus, customerID).Update("status", global.DeleteStatus).Error)
 }
 
 // HelpCheckin 帮助他人补签
