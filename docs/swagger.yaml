@@ -1547,8 +1547,6 @@ paths:
           description: '{"status":true}'
           schema:
             type: string
-      security:
-      - ApiKeyAuth: []
       summary: 用户支付
       tags:
       - 微信

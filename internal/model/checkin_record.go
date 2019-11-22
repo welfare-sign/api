@@ -6,10 +6,10 @@ import "time"
 type CheckinRecord struct {
 	Base
 
-	CustomerID            uint64    `json:"customer_id" gorm:"not null"`               // 签到人ID
-	HelpCheckinCustomerID uint64    `json:"help_checkin_customer_id" gorm:"default:0"` // 帮签人ID
-	Day                   uint64    `json:"day" gorm:"not null"`                       // 签到第几天
-	NeedCheckinTime       time.Time `json:"need_checkin_time" gorm:"not null"`         // 需要签到的日期
+	CustomerID            uint64    `json:"customer_id" gorm:"not null"`                     // 签到人ID
+	HelpCheckinCustomerID uint64    `json:"help_checkin_customer_id" gorm:"default:0"`       // 帮签人ID
+	Day                   uint64    `json:"day" gorm:"not null"`                             // 签到第几天
+	NeedCheckinTime       time.Time `json:"need_checkin_time" gorm:"not null;type:datetime"` // 需要签到的日期
 }
 
 // CheckinRecordVO 记录客户签到

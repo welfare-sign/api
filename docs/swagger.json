@@ -1132,11 +1132,6 @@
         },
         "/wx/pay/notify": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "wx pay callback",
                 "consumes": [
                     "application/json"

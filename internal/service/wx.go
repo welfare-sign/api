@@ -186,7 +186,6 @@ func checkWeixinPayValidation(notifyData string) (bool, *wxpay.WxPagePayRequest)
 }
 
 func (s *Service) payOrderComplete(ctx context.Context, orderId string, payFee uint64, tradeNo, openid, completePayTime string) (wsgin.APICode, error) {
-	//TODO: 更改签到记录, 校验金额
 	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{
 		"open_id": openid,
 		"status":  global.ActiveStatus,
@@ -198,7 +197,7 @@ func (s *Service) payOrderComplete(ctx context.Context, orderId string, payFee u
 		return apicode.ErrWXPayNotify, errors.New("用户未找到")
 	}
 
-	if payFee != 500 {
+	if payFee != uint64(viper.GetFloat64(config.KeyWXPayAmount)*100) {
 		log.Warn(ctx, "payOrderComplete.payFee error", zap.Uint64("实际支付金额", payFee))
 		return apicode.ErrWXPayNotify, errors.New("支付金额不正确")
 	}

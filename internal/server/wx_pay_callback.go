@@ -35,7 +35,6 @@ func (m *WxpayCallbackRequest) Extract(c *gin.Context) (code wsgin.APICode, err 
 // Exec 微信支付回调
 // @Summary 用户支付
 // @Description wx pay callback
-// @Security ApiKeyAuth
 // @Tags 微信
 // @Accept json
 // @Produce json
