@@ -127,8 +127,6 @@ func miniWxpaySign(prepayId string) *wxpay.WxPagePayRequest {
 	request.SetValue("signType", string(wxpay.SignType_Hmac_SHA256))
 	request.SetValue("paySign", request.MakeSign(wxpay.SignType_Hmac_SHA256))
 	request.SetValue("payFee", strconv.FormatFloat(viper.GetFloat64(config.KeyWXPayAmount)*100, 'f', 0, 64))
-
-	request.DelValue("appId")
 	return &request
 }
 
@@ -138,7 +136,7 @@ func prepareWxpayRequest(ctx context.Context, openId string) *wxpay.WxPagePayReq
 	year, month, day := time.Now().Date()
 	orderNo := strconv.Itoa(year) + strconv.Itoa(int(month)) + strconv.Itoa(day) + strconv.FormatInt(time.Now().Unix(), 10)
 	request := wxpay.WxPagePayRequest{}
-	request.SetValue("body", "支付5元补签")
+	request.SetValue("body", "补签")
 	request.SetValue("out_trade_no", "J"+orderNo)
 	request.SetValue("total_fee", strconv.FormatFloat(payPrice*100, 'f', 0, 64)) //分
 	request.SetValue("trade_type", "JSAPI")
