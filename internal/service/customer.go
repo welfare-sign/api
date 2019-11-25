@@ -50,7 +50,14 @@ func (s *Service) GetCustomerList(ctx context.Context, vo *model.CustomerListVO)
 }
 
 // GetCustomerDetail 获取客户详情
-func (s *Service) GetCustomerDetail(ctx context.Context, customerID uint64) (*model.Customer, wsgin.APICode, error) {
+func (s *Service) GetCustomerDetail(ctx context.Context, uid, searchID uint64, isHelpCheckinPage bool) (*model.Customer, wsgin.APICode, error) {
+	if isHelpCheckinPage && uid == searchID {
+		return nil, apicode.ErrHelpCheckinLimit, errors.New("您不能为自己补签")
+	}
+	customerID := uid
+	if searchID != 0 {
+		customerID = searchID
+	}
 	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{
 		"id":     customerID,
 		"status": global.ActiveStatus,
@@ -218,7 +225,34 @@ func (s *Service) GetIssueRecords(ctx context.Context, customerID uint64) ([]*mo
 }
 
 // ExecIssueRecords 客户领取福利
-func (s *Service) ExecIssueRecords(ctx context.Context, customerID, merchantID uint64) (wsgin.APICode, error) {
+func (s *Service) ExecIssueRecords(ctx context.Context, customerID, merchantID uint64, mobile, code string) (wsgin.APICode, error) {
+	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{
+		"id":     customerID,
+		"status": global.ActiveStatus,
+	})
+	if err != nil {
+		log.Warn(ctx, "ExecIssueRecords.FindCustomer() error", zap.Error(err))
+		return apicode.ErrExecIssueRecord, err
+	}
+	if customer.Mobile == "" && mobile == "" {
+		log.Warn(ctx, "ExecIssueRecords.mobile error", zap.Error(errors.New("没有传入手机号")))
+		return apicode.ErrExecIssueRecord, err
+	}
+	if mobile != "" {
+		if viper.GetBool(config.KeySMSEnable) {
+			if err := s.ValidateCode(ctx, mobile, code); err != nil {
+				log.Info(ctx, "ExecIssueRecords.ValidateCode() error", zap.Error(err))
+				return apicode.ErrExecIssueRecord, err
+			}
+			if err := s.dao.DelSMSCode(ctx, mobile); err != nil {
+				log.Info(ctx, "ExecIssueRecords.DelSMSCode() error", zap.Error(err))
+			}
+		}
+	}
+	if customer.Mobile != "" {
+		mobile = ""
+	}
+
 	checkinRecords, err := s.dao.ListCheckinRecord(ctx, map[string]interface{}{
 		"status":      global.ActiveStatus,
 		"customer_id": customerID,
@@ -228,7 +262,7 @@ func (s *Service) ExecIssueRecords(ctx context.Context, customerID, merchantID u
 		return apicode.ErrExecIssueRecord, err
 	}
 	if len(checkinRecords) != 5 {
-		return apicode.ErrExecIssueRecord, errors.New("您还未签满5天")
+		return apicode.ErrNoWelfare, errors.New("您还未签满5天")
 	}
 
 	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{
@@ -250,7 +284,7 @@ func (s *Service) ExecIssueRecords(ctx context.Context, customerID, merchantID u
 	issueRecord.CustomerID = customerID
 	issueRecord.TotalReceive = merchant.CheckinNum
 	issueRecord.Received = 0
-	if err := s.dao.CreateIssueRecord(ctx, issueRecord, merchant); err != nil {
+	if err := s.dao.CreateIssueRecord(ctx, issueRecord, merchant, mobile); err != nil {
 		return apicode.ErrExecIssueRecord, err
 	}
 	return wsgin.APICodeSuccess, nil
@@ -266,6 +300,9 @@ func (s *Service) RefreshCheckinRecord(ctx context.Context, customerID uint64) (
 
 // HelpCheckinRecord 帮助他人签到
 func (s *Service) HelpCheckinRecord(ctx context.Context, helpCustomerID, customerID uint64) (wsgin.APICode, error) {
+	if helpCustomerID == customerID {
+		return apicode.ErrHelpCheckin, errors.New("不能通过分享功能为自己补签")
+	}
 	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{
 		"id":     helpCustomerID,
 		"status": global.ActiveStatus,

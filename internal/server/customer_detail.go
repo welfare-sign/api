@@ -13,7 +13,8 @@ import (
 type CustomerDetailRequest struct {
 	wsgin.AuthRequest
 
-	CustomerID uint64 `json:"customer_id" form:"customer_id" example:"客户id"`
+	CustomerID        uint64 `json:"customer_id" form:"customer_id"`                   // 客户id
+	IsHelpCheckinPage bool   `form:"is_help_checkin_page" json:"is_help_checkin_page"` // 是否是帮签页面
 }
 
 // CustomerDetailResponse .
@@ -46,11 +47,7 @@ func (r *CustomerDetailRequest) Extract(c *gin.Context) (code wsgin.APICode, err
 func (r *CustomerDetailRequest) Exec(ctx context.Context) interface{} {
 	resp := CustomerDetailResponse{}
 
-	customerID := r.TokenParames.UID
-	if r.CustomerID != 0 {
-		customerID = r.CustomerID
-	}
-	data, code, err := svc.GetCustomerDetail(ctx, customerID)
+	data, code, err := svc.GetCustomerDetail(ctx, r.TokenParames.UID, r.CustomerID, r.IsHelpCheckinPage)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp

@@ -39,6 +39,15 @@ definitions:
       updated_by:
         type: integer
     type: object
+  model.CheckinRecordListResp:
+    properties:
+      checkin_record:
+        $ref: '#/definitions/model.CheckinRecord'
+        type: object
+      customer:
+        $ref: '#/definitions/model.Customer'
+        type: object
+    type: object
   model.Customer:
     properties:
       city:
@@ -274,6 +283,25 @@ definitions:
       status:
         type: boolean
     type: object
+  server.CheckinRecordListResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/model.CheckinRecordListResp'
+        type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
   server.CheckinRecordResponse:
     properties:
       code:
@@ -427,9 +455,15 @@ definitions:
     type: object
   server.ExecIssueRecordRequest:
     properties:
+      code:
+        description: 验证码
+        type: string
       merchant_id:
         description: 店铺ID
         type: integer
+      mobile:
+        description: 手机号
+        type: string
     required:
     - merchant_id
     type: object
@@ -675,6 +709,30 @@ definitions:
         type: string
       data:
         description: access token
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ModifyCheckinRecordRequest:
+    properties:
+      checkin_record_id:
+        description: 签到记录ID
+        type: integer
+      status:
+        description: 用户状态：U，A
+        type: string
+    type: object
+  server.ModifyCheckinRecordResponse:
+    properties:
+      code:
+        description: 业务状态码
         type: string
       error:
         description: Error信息
@@ -1446,6 +1504,48 @@ paths:
       summary: 商户核销
       tags:
       - 商户
+  /users/checkin_record_list:
+    get:
+      consumes:
+      - application/json
+      description: get checkin record list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.CheckinRecordListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取签到记录列表(临时)
+      tags:
+      - 后台用户
+  /users/checkin_record_list/modify:
+    post:
+      consumes:
+      - application/json
+      description: users modify customer checkin record
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.ModifyCheckinRecordRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ModifyCheckinRecordResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 后台用户更改用户签到记录(临时)
+      tags:
+      - 后台用户
   /users/login:
     post:
       consumes:

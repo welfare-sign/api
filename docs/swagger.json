@@ -1004,6 +1004,74 @@
                 }
             }
         },
+        "/users/checkin_record_list": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get checkin record list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后台用户"
+                ],
+                "summary": "获取签到记录列表(临时)",
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/server.CheckinRecordListResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/checkin_record_list/modify": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "users modify customer checkin record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "后台用户"
+                ],
+                "summary": "后台用户更改用户签到记录(临时)",
+                "parameters": [
+                    {
+                        "description": "参数",
+                        "name": "args",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/server.ModifyCheckinRecordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"status\":true}",
+                        "schema": {
+                            "$ref": "#/definitions/server.ModifyCheckinRecordResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/login": {
             "post": {
                 "description": "user login",
@@ -1220,6 +1288,19 @@
                 },
                 "updated_by": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.CheckinRecordListResp": {
+            "type": "object",
+            "properties": {
+                "checkin_record": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.CheckinRecord"
+                },
+                "customer": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.Customer"
                 }
             }
         },
@@ -1550,6 +1631,33 @@
                 }
             }
         },
+        "server.CheckinRecordListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务状态码",
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CheckinRecordListResp"
+                    }
+                },
+                "error": {
+                    "description": "Error信息",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "提示消息",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                }
+            }
+        },
         "server.CheckinRecordResponse": {
             "type": "object",
             "properties": {
@@ -1769,9 +1877,17 @@
                 "merchant_id"
             ],
             "properties": {
+                "code": {
+                    "description": "验证码",
+                    "type": "string"
+                },
                 "merchant_id": {
                     "description": "店铺ID",
                     "type": "integer"
+                },
+                "mobile": {
+                    "description": "手机号",
+                    "type": "string"
                 }
             }
         },
@@ -2116,6 +2232,40 @@
                 },
                 "data": {
                     "description": "access token",
+                    "type": "string"
+                },
+                "error": {
+                    "description": "Error信息",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "提示消息",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                }
+            }
+        },
+        "server.ModifyCheckinRecordRequest": {
+            "type": "object",
+            "properties": {
+                "checkin_record_id": {
+                    "description": "签到记录ID",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "用户状态：U，A",
+                    "type": "string"
+                }
+            }
+        },
+        "server.ModifyCheckinRecordResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务状态码",
                     "type": "string"
                 },
                 "error": {

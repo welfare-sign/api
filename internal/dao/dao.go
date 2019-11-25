@@ -34,7 +34,7 @@ type Dao interface {
 	ExecCheckin(ctx context.Context, customerID uint64) error
 	ListIssueRecord(ctx context.Context, query interface{}, args ...interface{}) ([]*model.IssueRecord, error)
 	ListIssueRecordDetail(ctx context.Context, query interface{}, args ...interface{}) ([]*model.IssueRecord, error)
-	CreateIssueRecord(ctx context.Context, data model.IssueRecord, merchant *model.Merchant) error
+	CreateIssueRecord(ctx context.Context, data model.IssueRecord, merchant *model.Merchant, mobile string) error
 	InvalidCheckin(ctx context.Context, customerID uint64) error
 	HelpCheckin(ctx context.Context, checkRecordID, customerID, helpCustomerID uint64) error
 	StoreWXAccessToken(ak string, expire time.Duration) error
@@ -51,6 +51,8 @@ type Dao interface {
 	DeleteCustomer(ctx context.Context, customerID uint64)
 	GetRoundMerchantPoster() (*model.Merchant, error)
 	DelSMSCode(ctx context.Context, mobile string) error
+	GetTmpCheckinRecordList(ctx context.Context) ([]*model.CheckinRecordListResp, error)
+	UpdateCustomerCheckinRecord(ctx context.Context, checkinRecord uint64, status string) error
 }
 
 // dao dao.

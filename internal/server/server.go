@@ -63,6 +63,8 @@ func initRouter(e *gin.Engine) {
 	users := v1.Group("/users")
 	{
 		users.POST("/login", wsgin.ProcessExec(&UserLoginRequest{}))
+		users.GET("/checkin_record_list", wsgin.ProcessExec(&CheckinRecordListRequest{}))
+		users.POST("/checkin_record_list/modify", wsgin.ProcessExec(&ModifyCheckinRecordRequest{}))
 	}
 
 	// 文件

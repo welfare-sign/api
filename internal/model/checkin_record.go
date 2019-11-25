@@ -17,3 +17,9 @@ type CheckinRecordVO struct {
 	AccessToken string `form:"access_token" json:"access_token" binding:"required" example:"客户token"`
 	Day         uint64 `form:"customer_id" json:"customer_id" binding:"required" example:"客户ID"`
 }
+
+// CheckinRecordListResp 所有签到记录列表
+type CheckinRecordListResp struct {
+	CheckinRecord *CheckinRecord `json:"checkin_record"`
+	Customer      *Customer      `json:"customer"`
+}

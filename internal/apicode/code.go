@@ -32,6 +32,8 @@ const (
 	ErrEditMerchant         wsgin.APICode = "ERR_EDIT_MERCHANT"
 	ErrDisable              wsgin.APICode = "ERR_DISABLE"
 	ErrHasDisable           wsgin.APICode = "ERR_HAS_DISABLE"
+	ErrHelpCheckinLimit     wsgin.APICode = "ERR_HELP_CHECKIN_LIMIT"
+	ErrNoWelfare            wsgin.APICode = "ERR_NO_WELFARE"
 )
 
 func init() {
@@ -63,4 +65,6 @@ func init() {
 	wsgin.APICodeMapZH[ErrEditMerchant] = "编辑商户失败"
 	wsgin.APICodeMapZH[ErrDisable] = "禁用失败"
 	wsgin.APICodeMapZH[ErrHasDisable] = "该商户已被禁用，请勿重复操作"
+	wsgin.APICodeMapZH[ErrHelpCheckinLimit] = "您不能为自己补签"
+	wsgin.APICodeMapZH[ErrNoWelfare] = "您没有福利可领"
 }

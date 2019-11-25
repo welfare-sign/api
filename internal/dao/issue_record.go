@@ -55,7 +55,7 @@ func (d *dao) ListIssueRecordDetail(ctx context.Context, query interface{}, args
 }
 
 // CreateIssueRecord create issue record
-func (d *dao) CreateIssueRecord(ctx context.Context, data model.IssueRecord, merchant *model.Merchant) error {
+func (d *dao) CreateIssueRecord(ctx context.Context, data model.IssueRecord, merchant *model.Merchant, mobile string) error {
 	tx := d.db.Begin()
 
 	data.SetDefaultAttr()
@@ -77,6 +77,17 @@ func (d *dao) CreateIssueRecord(ctx context.Context, data model.IssueRecord, mer
 		tx.Rollback()
 		return err
 	}
+	if mobile != "" {
+		if err := tx.Model(&model.Customer{}).Where(map[string]interface{}{
+			"status": global.ActiveStatus,
+			"id":     data.CustomerID,
+		}).Update("mobile", mobile).Error; err != nil {
+			tx.Rollback()
+			log.Warn(ctx, "CreateIssueRecord.UpdateCustomer() error", zap.Error(err))
+			return err
+		}
+	}
+
 	tx.Commit()
 	return nil
 }

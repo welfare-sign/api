@@ -12,6 +12,8 @@ type ExecIssueRecordRequest struct {
 	wsgin.AuthRequest
 
 	MerchantID uint64 `json:"merchant_id" binding:"required"` // 店铺ID
+	Mobile     string `json:"mobile"`                         // 手机号
+	Code       string `json:"code"`                           // 验证码
 }
 
 // ExecIssueRecordResponse .
@@ -42,7 +44,7 @@ func (r *ExecIssueRecordRequest) Extract(c *gin.Context) (code wsgin.APICode, er
 func (r *ExecIssueRecordRequest) Exec(ctx context.Context) interface{} {
 	resp := ExecIssueRecordResponse{}
 
-	code, err := svc.ExecIssueRecords(ctx, r.TokenParames.UID, r.MerchantID)
+	code, err := svc.ExecIssueRecords(ctx, r.TokenParames.UID, r.MerchantID, r.Mobile, r.Code)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	return resp
 }
