@@ -10,7 +10,7 @@ import (
 
 // MerchantDisableRequest 禁用商户
 type MerchantDisableRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	MerchantID uint64 `form:"merchant_id" json:"merchant_id"` // 商户ID
 }

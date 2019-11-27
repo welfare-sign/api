@@ -11,7 +11,7 @@ import (
 
 // ExecWriteOffRequest .
 type ExecWriteOffRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	CustomerID uint64 `form:"customer_id" json:"customer_id" binding:"required"` // 客户ID
 	Num        uint64 `form:"num" json:"num" binding:"required"`                 // 核销数目

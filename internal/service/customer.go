@@ -51,9 +51,9 @@ func (s *Service) GetCustomerList(ctx context.Context, vo *model.CustomerListVO)
 
 // GetCustomerDetail 获取客户详情
 func (s *Service) GetCustomerDetail(ctx context.Context, uid, searchID uint64, isHelpCheckinPage bool) (*model.Customer, wsgin.APICode, error) {
-	if isHelpCheckinPage && uid == searchID {
-		return nil, apicode.ErrHelpCheckinLimit, errors.New("您不能为自己补签")
-	}
+	//if isHelpCheckinPage && uid == searchID {
+	//	return nil, apicode.ErrHelpCheckinLimit, errors.New("您不能为自己补签")
+	//}
 	customerID := uid
 	if searchID != 0 {
 		customerID = searchID
@@ -343,28 +343,18 @@ func (s *Service) HelpCheckinRecord(ctx context.Context, helpCustomerID, custome
 
 // IsSupplement 是否是补签
 func (s *Service) IsSupplement(ctx context.Context, customerID uint64) (bool, wsgin.APICode, error) {
-	records, err := s.dao.ListCheckinRecord(ctx, map[string]interface{}{
+	message, err := s.dao.FindHelpCheckinMesage(ctx, map[string]interface{}{
 		"customer_id": customerID,
-		"status":      global.ActiveStatus,
+		"is_read":     global.UnRead,
 	})
 	if err != nil {
 		return false, apicode.ErrGetIsSupplement, err
 	}
-	if len(records) == 0 {
-		return false, wsgin.APICodeSuccess, nil
+	// 已读所有未读的消息
+	if err := s.dao.UpdateHelpCheckinMessage(ctx, customerID); err != nil {
+		log.Warn(ctx, "已读补签消息失败", zap.Error(err))
 	}
-	lastRecord := records[len(records)-1]
-	if lastRecord.HelpCheckinCustomerID != 0 {
-		return true, wsgin.APICodeSuccess, nil
-	}
-	orderRecord, err := s.dao.FindWXPayRecord(ctx, map[string]interface{}{
-		"checkin_record_id": lastRecord.ID,
-		"status":            global.ActiveStatus,
-	})
-	if err != nil {
-		return false, apicode.ErrGetIsSupplement, err
-	}
-	if orderRecord.ID != 0 {
+	if message.ID != 0 {
 		return true, wsgin.APICodeSuccess, nil
 	}
 	return false, wsgin.APICodeSuccess, nil

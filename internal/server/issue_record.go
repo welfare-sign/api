@@ -10,7 +10,7 @@ import (
 
 // IssueRecordRequest .
 type IssueRecordRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 }
 
 // IssueRecordResponse .

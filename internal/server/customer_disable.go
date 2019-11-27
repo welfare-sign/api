@@ -10,7 +10,7 @@ import (
 
 // CustomerDisableRequest 禁用客户
 type CustomerDisableRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	CustomerID uint64 `form:"customer_id" json:"customer_id"` // 客户ID
 }

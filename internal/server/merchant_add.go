@@ -11,7 +11,7 @@ import (
 
 // MerchantAddRequest .
 type MerchantAddRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	Merchant *model.MerchantVO `json:"merchant" binding:"required,dive"`
 }

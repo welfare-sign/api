@@ -10,7 +10,7 @@ import (
 
 // MerchantPosterRequest .
 type MerchantPosterRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	Response gin.ResponseWriter
 }

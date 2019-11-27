@@ -10,7 +10,7 @@ import (
 
 // MerchantDelRequest 删除商户
 type MerchantDelRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	MerchantID uint64 `form:"merchant_id" json:"merchant_id"` // 商户ID
 }

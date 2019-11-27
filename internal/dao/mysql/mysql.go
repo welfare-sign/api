@@ -20,7 +20,7 @@ func New() *gorm.DB {
 	}
 	db.SingularTable(true)
 	db = db.LogMode(true)
-	db.AutoMigrate(&model.CheckinRecord{}, &model.Customer{}, &model.IssueRecord{}, &model.Merchant{}, &model.User{}, &model.WXPayRecord{})
+	db.AutoMigrate(&model.CheckinRecord{}, &model.Customer{}, &model.IssueRecord{}, &model.Merchant{}, &model.User{}, &model.WXPayRecord{}, &model.HelpCheckinMessage{})
 	return db
 }
 

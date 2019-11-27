@@ -10,7 +10,7 @@ import (
 
 // WXPayRequest .
 type WXPayRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 }
 
 // WXPayResponse .

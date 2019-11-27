@@ -1038,8 +1038,6 @@ paths:
           description: '{"status":true}'
           schema:
             $ref: '#/definitions/server.CustomerDetailResponse'
-      security:
-      - ApiKeyAuth: []
       summary: 获取客户详情
       tags:
       - 客户
@@ -1178,8 +1176,6 @@ paths:
           description: '{"status":true}'
           schema:
             $ref: '#/definitions/server.NearMerchantResponse'
-      security:
-      - ApiKeyAuth: []
       summary: 获取用户附近最近的几家店铺
       tags:
       - 客户

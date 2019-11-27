@@ -110,6 +110,16 @@ func (d *dao) HelpCheckin(ctx context.Context, checkRecordID, customerID, helpCu
 		tx.Rollback()
 		return err
 	}
+	msg := model.HelpCheckinMessage{}
+	msg.SetDefaultAttr()
+	msg.CheckinRecordID = checkRecordID
+	msg.CustomerID = customerID
+	msg.IsRead = global.UnRead
+	if err := tx.Create(&msg).Error; err != nil {
+		log.Warn(ctx, "分享补签时创建补签消息失败", zap.Error(err))
+		tx.Rollback()
+		return err
+	}
 	tx.Commit()
 	return nil
 }
@@ -156,6 +166,17 @@ func (d *dao) PayCheckin(ctx context.Context, checkRecordID, customerID uint64, 
 	payRecord.CheckinRecordID = checkRecordID
 	if err := tx.Create(payRecord).Error; err != nil {
 		log.Warn(ctx, "dao.PayCheckin.Create.WXPayRecord error", zap.Error(err))
+		tx.Rollback()
+		return err
+	}
+
+	msg := model.HelpCheckinMessage{}
+	msg.SetDefaultAttr()
+	msg.CheckinRecordID = checkRecordID
+	msg.CustomerID = customerID
+	msg.IsRead = global.UnRead
+	if err := tx.Create(&msg).Error; err != nil {
+		log.Warn(ctx, "支付回调时创建补签消息失败", zap.Error(err))
 		tx.Rollback()
 		return err
 	}

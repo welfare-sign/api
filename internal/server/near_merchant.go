@@ -10,7 +10,7 @@ import (
 
 // NearMerchantRequest 获取用户附近最近的几家店铺
 type NearMerchantRequest struct {
-	wsgin.AuthRequest
+	wsgin.BaseRequest
 
 	Lon      float64 `form:"lon" json:"lon" binding:"required"` // 经度
 	Lat      float64 `form:"lat" json:"lat" binding:"required"` // 维度
@@ -38,7 +38,6 @@ func (r *NearMerchantRequest) Extract(c *gin.Context) (code wsgin.APICode, err e
 // Exec 获取用户附近最近的几家店铺
 // @Summary 获取用户附近最近的几家店铺
 // @Description get customer near merchant
-// @Security ApiKeyAuth
 // @Tags 客户
 // @Accept json
 // @Produce json

@@ -244,11 +244,6 @@
         },
         "/customers/detail": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "get customer detail",
                 "consumes": [
                     "application/json"
@@ -446,11 +441,6 @@
         },
         "/customers/near_merchant": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "get customer near merchant",
                 "consumes": [
                     "application/json"

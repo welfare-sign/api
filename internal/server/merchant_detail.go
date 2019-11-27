@@ -11,7 +11,7 @@ import (
 
 // MerchantDetailRequest .
 type MerchantDetailRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	MerchantID uint64 `json:"merchant_id" form:"merchant_id" example:"商户ID"`
 }

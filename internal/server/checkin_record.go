@@ -11,7 +11,7 @@ import (
 
 // CheckinRecordRequest .
 type CheckinRecordRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	CustomerID uint64 `form:"customer_id" json:"customer_id"` // 当该参数有值时以该参数为准
 }

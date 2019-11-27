@@ -10,7 +10,7 @@ import (
 
 // CustomerDelRequest 删除客户
 type CustomerDelRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	CustomerID uint64 `form:"customer_id" json:"customer_id"` // 客户ID
 }

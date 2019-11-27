@@ -9,7 +9,7 @@ import (
 
 // ExecIssueRecordRequest .
 type ExecIssueRecordRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	MerchantID uint64 `json:"merchant_id" binding:"required"` // 店铺ID
 	Mobile     string `json:"mobile"`                         // 手机号

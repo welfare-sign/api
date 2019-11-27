@@ -11,7 +11,7 @@ import (
 
 // MerchantEditRequest 编辑商户
 type MerchantEditRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	Merchant   *model.MerchantVO `json:"merchant" binding:"required,dive"` // 商户信息
 	MerchantID uint64            `json:"merchant_id"`                      // 商户ID

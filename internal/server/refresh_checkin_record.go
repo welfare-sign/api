@@ -9,7 +9,7 @@ import (
 
 // RefreshCheckinRecordRequest .
 type RefreshCheckinRecordRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 }
 
 // RefreshCheckinRecordResponse .

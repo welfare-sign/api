@@ -9,7 +9,7 @@ import (
 
 // HelpCheckinRequest .
 type HelpCheckinRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	CustomerID uint64 `form:"customer_id" json:"customer_id" binding:"required"` // 补签客户ID
 }

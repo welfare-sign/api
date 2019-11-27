@@ -37,7 +37,6 @@ func (r *CustomerDetailRequest) Extract(c *gin.Context) (code wsgin.APICode, err
 // Exec 获取客户详情
 // @Summary 获取客户详情
 // @Description get customer detail
-// @Security ApiKeyAuth
 // @Tags 客户
 // @Accept json
 // @Produce json
@@ -46,8 +45,11 @@ func (r *CustomerDetailRequest) Extract(c *gin.Context) (code wsgin.APICode, err
 // @Router /customers/detail [get]
 func (r *CustomerDetailRequest) Exec(ctx context.Context) interface{} {
 	resp := CustomerDetailResponse{}
-
-	data, code, err := svc.GetCustomerDetail(ctx, r.TokenParames.UID, r.CustomerID, r.IsHelpCheckinPage)
+	uid := uint64(0)
+	if r.TokenParames != nil {
+		uid = r.TokenParames.UID
+	}
+	data, code, err := svc.GetCustomerDetail(ctx, uid, r.CustomerID, r.IsHelpCheckinPage)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp

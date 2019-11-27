@@ -9,7 +9,7 @@ import (
 
 // ModifyCheckinRecordRequest .
 type ModifyCheckinRecordRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	CheckinRecordID uint64 `json:"checkin_record_id"` // 签到记录ID
 	Status          string `json:"status"`            // 用户状态：U，A

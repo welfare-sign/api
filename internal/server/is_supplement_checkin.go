@@ -10,7 +10,7 @@ import (
 
 // IsSupplementCheckinRequest 是否是补签
 type IsSupplementCheckinRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 }
 
 // IsSupplementCheckinResponse .

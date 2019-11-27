@@ -53,6 +53,8 @@ type Dao interface {
 	DelSMSCode(ctx context.Context, mobile string) error
 	GetTmpCheckinRecordList(ctx context.Context) ([]*model.CheckinRecordListResp, error)
 	UpdateCustomerCheckinRecord(ctx context.Context, checkinRecord uint64, status string) error
+	FindHelpCheckinMesage(ctx context.Context, query interface{}, args ...interface{}) (*model.HelpCheckinMessage, error)
+	UpdateHelpCheckinMessage(ctx context.Context, customerID uint64) error
 }
 
 // dao dao.

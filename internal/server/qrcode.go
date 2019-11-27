@@ -9,7 +9,7 @@ import (
 
 // QRCodeRequest .
 type QRCodeRequest struct {
-	wsgin.AuthRequest
+	wsgin.MustAuthRequest
 
 	Response gin.ResponseWriter
 }
