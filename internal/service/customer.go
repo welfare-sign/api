@@ -266,8 +266,8 @@ func (s *Service) ExecIssueRecords(ctx context.Context, customerID, merchantID u
 	}
 
 	merchant, err := s.dao.FindMerchant(ctx, map[string]interface{}{
-		"merchant_id": merchantID,
-		"status":      global.ActiveStatus,
+		"id":     merchantID,
+		"status": global.ActiveStatus,
 	})
 	if err != nil {
 		return apicode.ErrExecIssueRecord, err
