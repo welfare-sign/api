@@ -43,7 +43,8 @@ type Dao interface {
 	GetWXJSTicket() (string, error)
 	HasChecked(ctx context.Context, customerID uint64) (bool, error)
 	GetUnchecked(ctx context.Context, customerID uint64) (*model.CheckinRecord, error)
-	PayCheckin(ctx context.Context, checkRecordID, customerID uint64, payRecord *model.WXPayRecord) error
+	GetAllUnchecked(ctx context.Context, customerID uint64) ([]*model.CheckinRecord, error)
+	PayCheckin(ctx context.Context, checkRecordIds []uint64, customerID uint64, payRecord *model.WXPayRecord) error
 	FindWXPayRecord(ctx context.Context, query map[string]interface{}) (*model.WXPayRecord, error)
 	UpdateMerchant(ctx context.Context, data *model.Merchant) error
 	DeleteMerchant(ctx context.Context, merchantID uint64)
@@ -55,6 +56,8 @@ type Dao interface {
 	UpdateCustomerCheckinRecord(ctx context.Context, checkinRecord uint64, status string) error
 	FindHelpCheckinMesage(ctx context.Context, query interface{}, args ...interface{}) (*model.HelpCheckinMessage, error)
 	UpdateHelpCheckinMessage(ctx context.Context, customerID uint64) error
+	GetNeedClearIssueRecords(ctx context.Context) ([]*model.IssueRecord, error)
+	FailureIssueRecord(ctx context.Context, issueRecord *model.IssueRecord) error
 }
 
 // dao dao.

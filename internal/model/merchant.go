@@ -18,6 +18,7 @@ type Merchant struct {
 	CheckinDays    uint64  `json:"checkin_days"`                                          // 签到天数多少天可领取礼品
 	CheckinNum     uint64  `json:"checkin_num"`                                           // 达到指定签到天数后，可领取的礼品数量
 	HasWriteOffNum uint64  `json:"has_write_off_num"`                                     // 已核销总数
+	HasFailure     uint64  `json:"has_failure"`                                           // 已失效
 }
 
 // MerchantVO 新增店铺参数

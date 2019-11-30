@@ -106,7 +106,13 @@ func (s *Service) WXPay(ctx context.Context, customerID uint64) (string, wsgin.A
 		return "", apicode.ErrWXPay, errors.New("未查到用户信息")
 	}
 
-	req := prepareWxpayRequest(ctx, customer.OpenID)
+	uncheckeds, err := s.dao.GetAllUnchecked(ctx, customer.ID)
+	if err != nil || len(uncheckeds) == 0 {
+		log.Warn(ctx, "WXPay.GetAllUnchecked()", zap.String("pay: ", "当前用户没有需要补签的记录"))
+		return "", apicode.ErrWXPay, errors.New("当前用户没有需要补签的记录")
+	}
+
+	req := prepareWxpayRequest(ctx, customer.OpenID, len(uncheckeds))
 	ret, err := wxpay.UnifiedOrder(req)
 	if err != nil {
 		return "", apicode.ErrWXPay, errors.WithMessage(err, "当前订单无法支付，请稍候再试")
@@ -114,11 +120,11 @@ func (s *Service) WXPay(ctx context.Context, customerID uint64) (string, wsgin.A
 	//微信小程序支付prepay_id
 	prepayId := ret.GetValue("prepay_id")
 
-	req = miniWxpaySign(prepayId)
+	req = miniWxpaySign(prepayId, len(uncheckeds))
 	return req.ToJson(), wsgin.APICodeSuccess, nil
 }
 
-func miniWxpaySign(prepayId string) *wxpay.WxPagePayRequest {
+func miniWxpaySign(prepayId string, days int) *wxpay.WxPagePayRequest {
 	request := wxpay.WxPagePayRequest{}
 	request.SetValue("appId", viper.GetString(config.KeyWxAppID))
 	request.SetValue("timeStamp", strconv.FormatInt(time.Now().Unix(), 10))
@@ -126,13 +132,13 @@ func miniWxpaySign(prepayId string) *wxpay.WxPagePayRequest {
 	request.SetValue("package", "prepay_id="+prepayId)
 	request.SetValue("signType", string(wxpay.SignType_Hmac_SHA256))
 	request.SetValue("paySign", request.MakeSign(wxpay.SignType_Hmac_SHA256))
-	request.SetValue("payFee", strconv.FormatFloat(viper.GetFloat64(config.KeyWXPayAmount)*100, 'f', 0, 64))
+	request.SetValue("payFee", strconv.FormatFloat(viper.GetFloat64(config.KeyWXPayAmount)*100*float64(days), 'f', 0, 64))
 	return &request
 }
 
-func prepareWxpayRequest(ctx context.Context, openId string) *wxpay.WxPagePayRequest {
+func prepareWxpayRequest(ctx context.Context, openId string, days int) *wxpay.WxPagePayRequest {
 	//应付金额
-	payPrice := viper.GetFloat64(config.KeyWXPayAmount)
+	payPrice := viper.GetFloat64(config.KeyWXPayAmount) * float64(days)
 	year, month, day := time.Now().Date()
 	orderNo := strconv.Itoa(year) + strconv.Itoa(int(month)) + strconv.Itoa(day) + strconv.FormatInt(time.Now().Unix(), 10)
 	request := wxpay.WxPagePayRequest{}
@@ -195,21 +201,25 @@ func (s *Service) payOrderComplete(ctx context.Context, orderId string, payFee u
 		return apicode.ErrWXPayNotify, errors.New("用户未找到")
 	}
 
-	if payFee != uint64(viper.GetFloat64(config.KeyWXPayAmount)*100) {
+	if payFee%(uint64(viper.GetFloat64(config.KeyWXPayAmount)*100)) != 0 {
 		log.Warn(ctx, "payOrderComplete.payFee error", zap.Uint64("实际支付金额", payFee))
 		return apicode.ErrWXPayNotify, errors.New("支付金额不正确")
 	}
 
-	unchecked, err := s.dao.GetUnchecked(ctx, customer.ID)
+	uncheckeds, err := s.dao.GetAllUnchecked(ctx, customer.ID)
 	if err != nil {
 		return apicode.ErrWXPayNotify, err
 	}
-	if unchecked.ID == 0 {
-		log.Warn(ctx, "payOrderComplete.GetUnchecked()", zap.String("notify: ", "当前用户没有需要补签的记录"))
+	if len(uncheckeds) == 0 {
+		log.Warn(ctx, "payOrderComplete.GetAllUnchecked()", zap.String("notify: ", "当前用户没有需要补签的记录"))
 		return wsgin.APICodeSuccess, nil
 	}
 
-	if err := s.dao.PayCheckin(ctx, unchecked.ID, customer.ID, &model.WXPayRecord{
+	uncheckedIds := make([]uint64, 0, len(uncheckeds))
+	for i := 0; i < len(uncheckeds); i++ {
+		uncheckedIds = append(uncheckedIds, uncheckeds[i].ID)
+	}
+	if err := s.dao.PayCheckin(ctx, uncheckedIds, customer.ID, &model.WXPayRecord{
 		OrderID:         orderId,
 		PayFee:          payFee,
 		TradeNo:         tradeNo,

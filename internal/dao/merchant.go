@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"welfare-sign/internal/dao/mysql"
+	"welfare-sign/internal/global"
 	"welfare-sign/internal/model"
 )
 
 const (
 	nearMerchantSQL = `SELECT
-id, (
+*, (
 	6371 * acos (
 	cos ( radians(?) )
 	* cos( radians( lat ) )
@@ -65,6 +66,7 @@ func (d *dao) EcecWriteOff(ctx context.Context, merchantID, customerID, hasRece,
 	if err := tx.Model(&model.IssueRecord{}).Where(map[string]interface{}{
 		"merchant_id": merchantID,
 		"customer_id": customerID,
+		"status":      global.ActiveStatus,
 	}).Updates(map[string]interface{}{"received": hasRece}).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -89,21 +91,9 @@ type nears struct {
 func (d *dao) NearMerchant(ctx context.Context, data *model.NearMerchantVO) ([]*model.Merchant, error) {
 	var (
 		merchants []*model.Merchant
-		ns        []*nears
 	)
 
-	err := d.db.Raw(nearMerchantSQL, data.Lat, data.Lon, data.Lat, data.Distince, data.Num).Find(&ns).Error
-	if checkErr(err) != nil {
-		return nil, err
-	}
-	if len(ns) == 0 {
-		return merchants, nil
-	}
-	ids := make([]uint64, 0, len(ns))
-	for i := 0; i < len(ns); i++ {
-		ids = append(ids, ns[i].ID)
-	}
-	err = d.db.Where("id in (?)", ids).Find(&merchants).Error
+	err := d.db.Raw(nearMerchantSQL, data.Lat, data.Lon, data.Lat, data.Distince, data.Num).Find(&merchants).Error
 	if checkErr(err) != nil {
 		return nil, err
 	}

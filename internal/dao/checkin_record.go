@@ -5,10 +5,12 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"welfare-sign/internal/global"
 	"welfare-sign/internal/model"
+	"welfare-sign/internal/pkg/config"
 	"welfare-sign/internal/pkg/log"
 )
 
@@ -29,6 +31,10 @@ AND status = ?
 	`
 	payCheckinSQL = `
 	UPDATE checkin_record SET status = ?, updated_at = ? WHERE id = ?
+	`
+	getNeedClearIssueRecordsSQL = `
+	SELECT *from issue_record WHERE status = ? AND total_receive > received
+AND created_at <= DATE_ADD(NOW(), INTERVAL - ? MINUTE)
 	`
 )
 
@@ -146,14 +152,35 @@ func (d *dao) GetUnchecked(ctx context.Context, customerID uint64) (*model.Check
 	return &checkinRecord, err
 }
 
+// GetAllUnchecked 获取当天之前所有未签到的记录
+func (d *dao) GetAllUnchecked(ctx context.Context, customerID uint64) ([]*model.CheckinRecord, error) {
+	var checkinRecords []*model.CheckinRecord
+	err := checkErr(d.db.Raw(getUncheckedSQL, customerID, global.InactiveStatus).Find(&checkinRecords).Error)
+	return checkinRecords, err
+}
+
 // PayCheckin 用户支付后补签
-func (d *dao) PayCheckin(ctx context.Context, checkRecordID, customerID uint64, payRecord *model.WXPayRecord) error {
+func (d *dao) PayCheckin(ctx context.Context, checkRecordIds []uint64, customerID uint64, payRecord *model.WXPayRecord) error {
 	tx := d.db.Begin()
 
-	if err := tx.Exec(payCheckinSQL, global.ActiveStatus, time.Now(), checkRecordID).Error; err != nil {
-		tx.Rollback()
-		return err
+	for i := 0; i < len(checkRecordIds); i++ {
+		if err := tx.Exec(payCheckinSQL, global.ActiveStatus, time.Now(), checkRecordIds[i]).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		msg := model.HelpCheckinMessage{}
+		msg.SetDefaultAttr()
+		msg.CheckinRecordID = checkRecordIds[i]
+		msg.CustomerID = customerID
+		msg.IsRead = global.UnRead
+		if err := tx.Create(&msg).Error; err != nil {
+			log.Warn(ctx, "支付回调时创建补签消息失败", zap.Error(err))
+			tx.Rollback()
+			return err
+		}
 	}
+
 	if err := tx.Model(&model.Customer{}).Where(map[string]interface{}{
 		"id":     customerID,
 		"status": global.ActiveStatus,
@@ -163,20 +190,46 @@ func (d *dao) PayCheckin(ctx context.Context, checkRecordID, customerID uint64, 
 	}
 
 	payRecord.SetDefaultAttr()
-	payRecord.CheckinRecordID = checkRecordID
+	payRecord.CheckinRecordID = checkRecordIds[len(checkRecordIds)-1]
 	if err := tx.Create(payRecord).Error; err != nil {
 		log.Warn(ctx, "dao.PayCheckin.Create.WXPayRecord error", zap.Error(err))
 		tx.Rollback()
 		return err
 	}
 
-	msg := model.HelpCheckinMessage{}
-	msg.SetDefaultAttr()
-	msg.CheckinRecordID = checkRecordID
-	msg.CustomerID = customerID
-	msg.IsRead = global.UnRead
-	if err := tx.Create(&msg).Error; err != nil {
-		log.Warn(ctx, "支付回调时创建补签消息失败", zap.Error(err))
+	tx.Commit()
+	return nil
+}
+
+// GetNeedClearIssueRecords 获取到达指定时间内未核销完的福利
+func (d *dao) GetNeedClearIssueRecords(ctx context.Context) ([]*model.IssueRecord, error) {
+	var issueRecords []*model.IssueRecord
+	if err := checkErr(d.db.Raw(getNeedClearIssueRecordsSQL, global.ActiveStatus, viper.GetInt64(config.KeyTaskCheckinExpiredTime)).Find(&issueRecords).Error); err != nil {
+		return issueRecords, err
+	}
+	return issueRecords, nil
+}
+
+// FailureIssueRecord 失效过期的福利
+func (d *dao) FailureIssueRecord(ctx context.Context, issueRecord *model.IssueRecord) error {
+	tx := d.db.Begin()
+
+	issueRecord.Status = global.InactiveStatus
+	if err := checkErr(tx.Save(issueRecord).Error); err != nil {
+		tx.Rollback()
+		return err
+	}
+	var merchant model.Merchant
+	num := issueRecord.TotalReceive - issueRecord.Received
+	if err := tx.Where(map[string]interface{}{
+		"id":     issueRecord.MerchantID,
+		"status": global.ActiveStatus,
+	}).First(&merchant).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	merchant.HasFailure += num
+	if err := tx.Save(merchant).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

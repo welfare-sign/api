@@ -8,12 +8,15 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"welfare-sign/internal/pkg/config"
 	"welfare-sign/internal/pkg/log"
 	"welfare-sign/internal/pkg/util"
 	"welfare-sign/internal/server"
 	"welfare-sign/internal/service"
-
-	"go.uber.org/zap"
+	"welfare-sign/internal/task"
 )
 
 // @title 福利签API文档
@@ -36,6 +39,11 @@ func main() {
 		}
 	}()
 	log.Info(context.Background(), "welfare-sign start", zap.String("server_start_time", util.TimeFormat(time.Now())))
+
+	if viper.GetBool(config.KeyTaskEnable) {
+		// 触发定时任务
+		go task.Run(svc)
+	}
 
 	signal.Notify(quit, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
 	<-quit

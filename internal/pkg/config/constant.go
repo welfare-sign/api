@@ -37,4 +37,8 @@ const (
 	KeyWXPayAPI       = "wx.pay_api_key"
 	KeyWXPayNotifyURL = "wx.pay_notify_url"
 	KeyWXPayAmount    = "wx.pay_amount"
+
+	KeyTaskEnable                          = "task.enable"
+	KeyTaskCheckinExpiredTime              = "task.checkin_expired_time"
+	KeyTaskCheckinExpiredTimeStartInterval = "task.checkin_expired_time_start_interval"
 )

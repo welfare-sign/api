@@ -150,6 +150,9 @@ definitions:
         type: string
       created_by:
         type: integer
+      has_failure:
+        description: 已失效
+        type: integer
       has_write_off_num:
         description: 已核销总数
         type: integer

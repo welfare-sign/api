@@ -155,6 +155,9 @@ func (s *Service) ExecWriteOff(ctx context.Context, vo *model.MerchantExecWriteO
 	if err != nil {
 		return nil, code, err
 	}
+	if resp.IssueRecord.ID == 0 {
+		return nil, apicode.ErrExecWriteOff, errors.New("用户没有福利可核销")
+	}
 	if (resp.IssueRecord.TotalReceive - resp.IssueRecord.Received) < vo.Num {
 		return nil, apicode.ErrExecWriteOff, errors.New("核销数目不正确")
 	}

@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 
@@ -182,4 +183,19 @@ func GenerateNonceStr(length int) string {
 		buf[i] = byte(stem[rand.Int()%stemSize])
 	}
 	return string(buf)
+}
+
+//NewV4 添加重试机制
+func NewV4() (uuid.UUID, error) {
+	c := 0
+look:
+	uid, err := uuid.NewV4()
+	if err == nil {
+		return uid, nil
+	}
+	if c < 3 {
+		c++
+		goto look
+	}
+	return [16]byte{}, errors.WithMessage(err, "NewV4 retry 3 time error")
 }
