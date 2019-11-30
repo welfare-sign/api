@@ -214,10 +214,7 @@ func (s *Service) GetQRCode(ctx context.Context, customerID uint64) (data []byte
 
 // GetIssueRecords 客户查看我的福利
 func (s *Service) GetIssueRecords(ctx context.Context, customerID uint64) ([]*model.IssueRecord, wsgin.APICode, error) {
-	issueRecords, err := s.dao.ListIssueRecordDetail(ctx, map[string]interface{}{
-		"customer_id": customerID,
-		"status":      global.ActiveStatus,
-	})
+	issueRecords, err := s.dao.ListIssueRecordDetail(ctx, "customer_id = ? AND status = ? AND total_receive != received", customerID, global.ActiveStatus)
 	if err != nil {
 		return nil, apicode.ErrIssueRecord, err
 	}
@@ -301,7 +298,7 @@ func (s *Service) RefreshCheckinRecord(ctx context.Context, customerID uint64) (
 // HelpCheckinRecord 帮助他人签到
 func (s *Service) HelpCheckinRecord(ctx context.Context, helpCustomerID, customerID uint64) (wsgin.APICode, error) {
 	if helpCustomerID == customerID {
-		return apicode.ErrHelpCheckin, errors.New("不能通过分享功能为自己补签")
+		return apicode.ErrHelpCheckinLimit, errors.New("不能通过分享功能为自己补签")
 	}
 	customer, err := s.dao.FindCustomer(ctx, map[string]interface{}{
 		"id":     helpCustomerID,

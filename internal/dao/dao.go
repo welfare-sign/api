@@ -25,7 +25,7 @@ type Dao interface {
 	FindMerchant(ctx context.Context, query interface{}) (*model.Merchant, error)
 	FindCustomer(ctx context.Context, query interface{}) (*model.Customer, error)
 	FindIssueRecord(ctx context.Context, query interface{}) (*model.IssueRecord, error)
-	EcecWriteOff(ctx context.Context, merchantID, customerID, hasRece, totalRece uint64) error
+	EcecWriteOff(ctx context.Context, merchantID, customerID, hasRece, writeOffNum uint64) error
 	ListCheckinRecord(ctx context.Context, query interface{}, args ...interface{}) ([]*model.CheckinRecord, error)
 	InitCheckinRecords(ctx context.Context, customerID uint64) ([]*model.CheckinRecord, error)
 	UpsertCustomer(ctx context.Context, data *model.WxUserResp) (*model.Customer, error)

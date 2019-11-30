@@ -60,7 +60,7 @@ func (d *dao) FindMerchant(ctx context.Context, query interface{}) (*model.Merch
 }
 
 // EcecWriteOff 执行核销
-func (d *dao) EcecWriteOff(ctx context.Context, merchantID, customerID, hasRece, totalRece uint64) error {
+func (d *dao) EcecWriteOff(ctx context.Context, merchantID, customerID, hasRece, writeOffNum uint64) error {
 	tx := d.db.Begin()
 	if err := tx.Model(&model.IssueRecord{}).Where(map[string]interface{}{
 		"merchant_id": merchantID,
@@ -70,7 +70,9 @@ func (d *dao) EcecWriteOff(ctx context.Context, merchantID, customerID, hasRece,
 		return err
 	}
 
-	if err := tx.Model(&model.Merchant{}).Where("id = ?", merchantID).Updates(map[string]interface{}{"received": totalRece}).Error; err != nil {
+	if err := tx.Model(&model.Merchant{}).Where("id = ?", merchantID).Updates(map[string]interface{}{
+		"has_write_off_num": writeOffNum,
+	}).Error; err != nil {
 		tx.Rollback()
 		return nil
 	}

@@ -58,16 +58,36 @@ func (d *dao) ListIssueRecordDetail(ctx context.Context, query interface{}, args
 func (d *dao) CreateIssueRecord(ctx context.Context, data model.IssueRecord, merchant *model.Merchant, mobile string) error {
 	tx := d.db.Begin()
 
-	data.SetDefaultAttr()
-	if err := tx.Create(&data).Error; err != nil {
+	var issueRecord model.IssueRecord
+	if err := checkErr(tx.Where(map[string]interface{}{
+		"merchant_id": data.MerchantID,
+		"customer_id": data.CustomerID,
+		"status":      global.ActiveStatus,
+	}).First(&issueRecord).Error); err != nil {
+		log.Warn(ctx, "CreateIssueRecord.FindIssueRecord() error", zap.Error(err))
 		tx.Rollback()
-		log.Warn(ctx, "CreateIssueRecord.Create() error", zap.Error(err))
 		return err
 	}
+	if issueRecord.ID == 0 { // 第一次在该店领取福利，创建记录
+		data.SetDefaultAttr()
+		if err := tx.Create(&data).Error; err != nil {
+			log.Warn(ctx, "CreateIssueRecord.Create() error", zap.Error(err))
+			tx.Rollback()
+			return err
+		}
+	} else { // 以前在该店领取过福利，则更新记录
+		issueRecord.TotalReceive += data.TotalReceive
+		if err := tx.Save(issueRecord).Error; err != nil {
+			log.Warn(ctx, "CreateIssueRecord.SaveIssueRecord() error", zap.Error(err))
+			tx.Rollback()
+			return err
+		}
+	}
+
 	if err := tx.Model(&model.CheckinRecord{}).Where(map[string]interface{}{
 		"status":      global.ActiveStatus,
 		"customer_id": data.CustomerID,
-	}).Update("status", global.InactiveStatus).Error; err != nil {
+	}).Update("status", global.DeleteStatus).Error; err != nil {
 		tx.Rollback()
 		log.Warn(ctx, "CreateIssueRecord.Update() error", zap.Error(err))
 		return err

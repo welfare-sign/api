@@ -159,9 +159,9 @@ func (s *Service) ExecWriteOff(ctx context.Context, vo *model.MerchantExecWriteO
 		return nil, apicode.ErrExecWriteOff, errors.New("核销数目不正确")
 	}
 	hasRece := resp.IssueRecord.Received + vo.Num
-	totalRece := resp.Merchant.Received + vo.Num
+	writeOffNum := resp.Merchant.HasWriteOffNum + vo.Num
 	resp.IssueRecord.Received = resp.IssueRecord.TotalReceive - hasRece
-	err = s.dao.EcecWriteOff(ctx, resp.Merchant.ID, resp.Customer.ID, hasRece, totalRece)
+	err = s.dao.EcecWriteOff(ctx, resp.Merchant.ID, resp.Customer.ID, hasRece, writeOffNum)
 	if err != nil {
 		return nil, apicode.ErrExecWriteOff, errors.New("核销数目不正确")
 	}

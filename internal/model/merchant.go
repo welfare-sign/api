@@ -4,19 +4,20 @@ package model
 type Merchant struct {
 	Base
 
-	StoreName    string  `json:"store_name" gorm:"not null"`                            // 店名
-	Address      string  `json:"address" gorm:"not null"`                               // 地址
-	Lon          float64 `json:"lon" gorm:"not null"`                                   // 经度
-	Lat          float64 `json:"lat" gorm:"not null"`                                   // 纬度
-	CateringType string  `json:"catering_type" gorm:"type:varchar(100)"`                // 餐饮类型
-	StoreAvatar  string  `json:"store_avatar" gorm:"not null"`                          // 店铺头像
-	Poster       string  `json:"poster"`                                                // 商户海报
-	ContactName  string  `json:"contact_name"`                                          // 联系人
-	ContactPhone string  `json:"contact_phone" gorm:"unique;not null;type:varchar(50)"` // 联系人电话
-	Received     uint64  `json:"received"`                                              // 已领礼品数量
-	TotalReceive uint64  `json:"total_receive"`                                         // 该店礼品一共可领取总数
-	CheckinDays  uint64  `json:"checkin_days"`                                          // 签到天数多少天可领取礼品
-	CheckinNum   uint64  `json:"checkin_num"`                                           // 达到指定签到天数后，可领取的礼品数量
+	StoreName      string  `json:"store_name" gorm:"not null"`                            // 店名
+	Address        string  `json:"address" gorm:"not null"`                               // 地址
+	Lon            float64 `json:"lon" gorm:"not null"`                                   // 经度
+	Lat            float64 `json:"lat" gorm:"not null"`                                   // 纬度
+	CateringType   string  `json:"catering_type" gorm:"type:varchar(100)"`                // 餐饮类型
+	StoreAvatar    string  `json:"store_avatar" gorm:"not null"`                          // 店铺头像
+	Poster         string  `json:"poster"`                                                // 商户海报
+	ContactName    string  `json:"contact_name"`                                          // 联系人
+	ContactPhone   string  `json:"contact_phone" gorm:"unique;not null;type:varchar(50)"` // 联系人电话
+	Received       uint64  `json:"received"`                                              // 已领礼品数量
+	TotalReceive   uint64  `json:"total_receive"`                                         // 该店礼品一共可领取总数
+	CheckinDays    uint64  `json:"checkin_days"`                                          // 签到天数多少天可领取礼品
+	CheckinNum     uint64  `json:"checkin_num"`                                           // 达到指定签到天数后，可领取的礼品数量
+	HasWriteOffNum uint64  `json:"has_write_off_num"`                                     // 已核销总数
 }
 
 // MerchantVO 新增店铺参数
