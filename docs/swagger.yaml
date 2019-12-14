@@ -48,6 +48,36 @@ definitions:
         $ref: '#/definitions/model.Customer'
         type: object
     type: object
+  model.CheckinStat:
+    properties:
+      date:
+        description: 日期
+        type: string
+      num:
+        description: 签到次数
+        type: integer
+    type: object
+  model.CompositeIndex:
+    properties:
+      composite_date:
+        description: 上证指数日期
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      id:
+        type: integer
+      points:
+        description: 指数
+        type: number
+      status:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
   model.Customer:
     properties:
       city:
@@ -121,6 +151,34 @@ definitions:
       total_receive:
         description: 在对应店铺可领取的总礼品数
         type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  model.LuckyNumberRecord:
+    properties:
+      composite_index:
+        $ref: '#/definitions/model.CompositeIndex'
+        description: 本轮内上证指数
+        type: object
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      customer_id:
+        description: 签到人ID
+        type: integer
+      id:
+        type: integer
+      lucky_number:
+        description: 用户填写的幸运数字
+        type: integer
+      ranking:
+        description: 本轮幸运数字排名
+        type: integer
+      status:
+        type: string
       updated_at:
         type: string
       updated_by:
@@ -261,6 +319,15 @@ definitions:
       num:
         type: integer
     type: object
+  model.RegisterStat:
+    properties:
+      date:
+        description: 日期
+        type: string
+      num:
+        description: 注册用户数
+        type: integer
+    type: object
   model.WXConfigResp:
     properties:
       appid:
@@ -287,6 +354,23 @@ definitions:
       message:
         type: string
       status:
+        type: boolean
+    type: object
+  server.CanPartLuckyNumberActivityResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        type: boolean
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
         type: boolean
     type: object
   server.CheckinRecordListResponse:
@@ -327,11 +411,75 @@ definitions:
         description: 状态
         type: boolean
     type: object
+  server.CheckinStatResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/model.CheckinStat'
+        type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
   server.CodeResponse:
     properties:
       code:
         description: 业务状态码
         type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.CompositeIndexAddRequest:
+    properties:
+      composite_date:
+        description: 上证指数日期
+        type: string
+      points:
+        description: 指数
+        type: number
+    required:
+    - composite_date
+    - points
+    type: object
+  server.CompositeIndexAddResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.CompositeIndexDetailResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.CompositeIndex'
+        type: object
       error:
         description: Error信息
         type: string
@@ -577,6 +725,87 @@ definitions:
         description: 状态
         type: boolean
     type: object
+  server.LuckyNumberAddRequest:
+    properties:
+      num:
+        description: 猜的数字
+        type: integer
+    required:
+    - num
+    type: object
+  server.LuckyNumberAddResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        items:
+          type: integer
+        type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.LuckyNumberBeforeResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.LuckyNumberRecord'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.LuckyNumberDetailResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.LuckyNumberRecord'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.LuckyPeopleBeforeResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.Customer'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
   server.MerchantAddRequest:
     properties:
       merchant:
@@ -784,6 +1013,25 @@ definitions:
         description: 状态
         type: boolean
     type: object
+  server.RegisterStatResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/model.RegisterStat'
+        type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
   server.UserLoginRequest:
     properties:
       name:
@@ -883,6 +1131,53 @@ info:
   title: 福利签API文档
   version: "1.0"
 paths:
+  /composite_index:
+    get:
+      consumes:
+      - application/json
+      description: get composite index
+      parameters:
+      - description: 日期
+        in: query
+        name: composite_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.CompositeIndexDetailResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取上证指数
+      tags:
+      - 上证指数
+    post:
+      consumes:
+      - application/json
+      description: post composite index
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.CompositeIndexAddRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.CompositeIndexAddResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 添加或者更新上证指数
+      tags:
+      - 上证指数
   /customers:
     delete:
       consumes:
@@ -945,6 +1240,23 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取客户列表
+      tags:
+      - 客户
+  /customers/can_part_lucky_number_activity:
+    get:
+      consumes:
+      - application/json
+      description: can participate in the lucky number activity
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.CanPartLuckyNumberActivityResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户是否可以参与猜数字活动
       tags:
       - 客户
   /customers/checkin_record:
@@ -1149,6 +1461,81 @@ paths:
           schema:
             $ref: '#/definitions/server.CustomerLoginResponse'
       summary: 客户登录
+      tags:
+      - 客户
+  /customers/lucky/before:
+    get:
+      consumes:
+      - application/json
+      description: get lucky customer before
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.LuckyPeopleBeforeResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 上期幸运儿
+      tags:
+      - 客户
+  /customers/lucky_number:
+    get:
+      consumes:
+      - application/json
+      description: get customer lucky number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.LuckyNumberDetailResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户猜的数字
+      tags:
+      - 客户
+    post:
+      consumes:
+      - application/json
+      description: post customer lucky number
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.LuckyNumberAddRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.LuckyNumberAddResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 写入用户猜的数字
+      tags:
+      - 客户
+  /customers/lucky_number/before:
+    get:
+      consumes:
+      - application/json
+      description: get customer lucky number before
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.LuckyNumberBeforeResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户上期猜的数字
       tags:
       - 客户
   /customers/near_merchant:
@@ -1506,6 +1893,62 @@ paths:
       summary: 商户核销
       tags:
       - 商户
+  /stat/checkin:
+    get:
+      consumes:
+      - application/json
+      description: stat customer exec checkin num
+      parameters:
+      - description: 开始日期
+        in: query
+        name: begin_date
+        required: true
+        type: string
+      - description: 结束日期
+        in: query
+        name: end_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.CheckinStatResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 统计用户执行签到数目
+      tags:
+      - 统计
+  /stat/register:
+    get:
+      consumes:
+      - application/json
+      description: stat customer register num
+      parameters:
+      - description: 开始日期
+        in: query
+        name: begin_date
+        required: true
+        type: string
+      - description: 结束日期
+        in: query
+        name: end_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.RegisterStatResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 统计用户注册数
+      tags:
+      - 统计
   /users/checkin_record_list:
     get:
       consumes:

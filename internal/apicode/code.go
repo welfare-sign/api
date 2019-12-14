@@ -35,6 +35,9 @@ const (
 	ErrHelpCheckinLimit       wsgin.APICode = "ERR_HELP_CHECKIN_LIMIT"
 	ErrNoWelfare              wsgin.APICode = "ERR_NO_WELFARE"
 	ErrTaskFailureIssueRecord wsgin.APICode = "ERR_TASK_FAILURE_ISSUE_RECORD"
+	ErrNoParticipation        wsgin.APICode = "ERR_NO_PARTICIPATION"
+	ErrSave                   wsgin.APICode = "ERR_SAVE"
+	ErrLuckyPeople            wsgin.APICode = "ERR_LUCKY_PEOPLE"
 )
 
 func init() {
@@ -69,4 +72,7 @@ func init() {
 	wsgin.APICodeMapZH[ErrHelpCheckinLimit] = "您不能为自己补签"
 	wsgin.APICodeMapZH[ErrNoWelfare] = "您没有福利可领"
 	wsgin.APICodeMapZH[ErrTaskFailureIssueRecord] = "执行失效福利任务失败"
+	wsgin.APICodeMapZH[ErrNoParticipation] = "禁止参与活动"
+	wsgin.APICodeMapZH[ErrSave] = "保存失败"
+	wsgin.APICodeMapZH[ErrLuckyPeople] = "获取幸运观众失败"
 }

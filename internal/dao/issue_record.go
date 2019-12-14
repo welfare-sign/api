@@ -10,6 +10,12 @@ import (
 	"go.uber.org/zap"
 )
 
+const isReceiveSQL = `
+SELECT *FROM issue_record_log WHERE status = ? AND customer_id = ? and created_at BETWEEN 
+DATE_FORMAT( SUBDATE(CURDATE(), WEEKDAY(CURDATE()) + 2), '%Y-%m-%d 00:00:00') AND
+DATE_FORMAT( DATE_ADD(SUBDATE(CURDATE(), WEEKDAY(CURDATE())), INTERVAL 4 DAY), '%Y-%m-%d 12:00:00')
+`
+
 // FindIssueRecord 获取礼包发放记录详情
 func (d *dao) FindIssueRecord(ctx context.Context, query interface{}) (*model.IssueRecord, error) {
 	var issueRecord model.IssueRecord
@@ -108,6 +114,25 @@ func (d *dao) CreateIssueRecord(ctx context.Context, data model.IssueRecord, mer
 		}
 	}
 
+	// 记录用户领取福利
+	var recordLog model.IssueRecordLog
+	recordLog.SetDefaultAttr()
+	recordLog.CustomerID = data.CustomerID
+	recordLog.MerchantID = data.MerchantID
+	recordLog.TotalReceive = data.TotalReceive
+	if err := tx.Create(&recordLog).Error; err != nil {
+		log.Warn(ctx, "CreateIssueRecord.CreateIssueRecordLog() error", zap.Error(err))
+		tx.Rollback()
+		return err
+	}
+
 	tx.Commit()
 	return nil
+}
+
+// IsReceiveBenefits 用户是否在指定时间端内领取福利
+func (d *dao) IsReceiveBenefits(ctx context.Context, customerID uint64) ([]*model.IssueRecordLog, error) {
+	var logs []*model.IssueRecordLog
+	err := d.db.Raw(isReceiveSQL, global.ActiveStatus, customerID).Find(&logs).Error
+	return logs, err
 }

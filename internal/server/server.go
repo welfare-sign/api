@@ -91,6 +91,11 @@ func initRouter(e *gin.Engine) {
 		customers.GET("/issue_records/is_supplement", wsgin.ProcessExec(&IsSupplementCheckinRequest{})) // 是否是补签
 		customers.POST("/disable", wsgin.ProcessExec(&CustomerDisableRequest{}))
 		customers.DELETE("", wsgin.ProcessExec(&CustomerDelRequest{}))
+		customers.GET("/can_part_lucky_number_activity", wsgin.ProcessExec(&CanPartLuckyNumberActivityRequest{}))
+		customers.POST("/lucky_number", wsgin.ProcessExec(&LuckyNumberAddRequest{}))
+		customers.GET("/lucky_number/before", wsgin.ProcessExec(&LuckyNumberBeforeRequest{}))
+		customers.GET("/lucky_number", wsgin.ProcessExec(&LuckyNumberDetailRequest{}))
+		customers.GET("/lucky/before", wsgin.ProcessExec(&LuckyPeopleBeforeRequest{}))
 	}
 
 	// 验证码
@@ -105,6 +110,18 @@ func initRouter(e *gin.Engine) {
 		wx.GET("/config", wsgin.ProcessExec(&WXConfigRequest{}))
 		wx.POST("/pay", wsgin.ProcessExec(&WXPayRequest{}))
 		wx.POST("/pay/notify", wsgin.ProcessExec(&WxpayCallbackRequest{}))
+	}
+
+	composite := v1.Group("/composite_index")
+	{
+		composite.POST("", wsgin.ProcessExec(&CompositeIndexAddRequest{}))
+		composite.GET("", wsgin.ProcessExec(&CompositeIndexDetailRequest{}))
+	}
+
+	stat := v1.Group("/stat")
+	{
+		stat.GET("/register", wsgin.ProcessExec(&RegisterStatRequest{}))
+		stat.GET("/checkin", wsgin.ProcessExec(&CheckinStatRequest{}))
 	}
 }
 

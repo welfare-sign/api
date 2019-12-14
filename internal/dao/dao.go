@@ -58,6 +58,17 @@ type Dao interface {
 	UpdateHelpCheckinMessage(ctx context.Context, customerID uint64) error
 	GetNeedClearIssueRecords(ctx context.Context) ([]*model.IssueRecord, error)
 	FailureIssueRecord(ctx context.Context, issueRecord *model.IssueRecord) error
+	IsReceiveBenefits(ctx context.Context, customerID uint64) ([]*model.IssueRecordLog, error)
+	GetLuckyNumberRecord(ctx context.Context, customerID uint64) (*model.LuckyNumberRecord, error)
+	GetCompositeIndex(ctx context.Context) (*model.CompositeIndex, error)
+	StoreLuckyNumberRecord(ctx context.Context, customerID uint64, num int64) ([]int64, error)
+	GetCompositeIndexBefore(ctx context.Context) (*model.CompositeIndex, error)
+	GetLuckyNumberRecordBefore(ctx context.Context, customerID uint64) (*model.LuckyNumberRecord, error)
+	GetLuckyPeopleBefore(ctx context.Context) (*model.Customer, error)
+	StoreCompositeIndex(ctx context.Context, compositeDate string, points float64) error
+	GetCompositeIndexByQuery(ctx context.Context, query interface{}) (*model.CompositeIndex, error)
+	GetRegisterStat(ctx context.Context, beginDate, endDate string) ([]*model.RegisterStat, error)
+	GetCheckinStat(ctx context.Context, beginDate, endDate string) ([]*model.CheckinStat, error)
 }
 
 // dao dao.

@@ -12,6 +12,13 @@ type CheckinRecord struct {
 	NeedCheckinTime       time.Time `json:"need_checkin_time" gorm:"not null;type:datetime"` // 需要签到的日期
 }
 
+// CheckinRecordLog 签到记录日志
+type CheckinRecordLog struct {
+	Base
+
+	CustomerID uint64 `json:"customer_id" gorm:"not null"` // 签到人ID
+}
+
 // CheckinRecordVO 记录客户签到
 type CheckinRecordVO struct {
 	AccessToken string `form:"access_token" json:"access_token" binding:"required" example:"客户token"`

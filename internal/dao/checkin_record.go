@@ -92,6 +92,14 @@ func (d *dao) ExecCheckin(ctx context.Context, customerID uint64) error {
 		tx.Rollback()
 		return err
 	}
+
+	var recordLog model.CheckinRecordLog
+	recordLog.SetDefaultAttr()
+	recordLog.CustomerID = customerID
+	if err := tx.Create(&recordLog).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 	tx.Commit()
 	return nil
 }

@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chenhg5/collection"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -198,4 +199,62 @@ look:
 		goto look
 	}
 	return [16]byte{}, errors.WithMessage(err, "NewV4 retry 3 time error")
+}
+
+// GetRecommandNum 获取推荐的数字
+func GetRecommandNum(oldNum int64, nums []int64) ([]int64, error) {
+	if len(nums) == 0 {
+		return []int64{}, errors.New("不存在的数字列表")
+	}
+	maxNum := getPropeNum(oldNum+1, "+", nums)
+	minNum := getPropeNum(oldNum-1, "-", nums)
+	return []int64{minNum, maxNum}, errors.New("您填入的数字已被占用")
+}
+
+func getPropeNum(num int64, tag string, nums []int64) int64 {
+	if !collection.Collect(nums).Contains(num) {
+		return num
+	}
+	if tag == "+" {
+		return getPropeNum(num+1, tag, nums)
+	} else {
+		return getPropeNum(num-1, tag, nums)
+	}
+
+}
+
+// SortRecord .
+type SortRecord struct {
+	Tag string
+	ID  uint64
+	Num int64
+}
+
+// SortRecordList .
+type SortRecordList []SortRecord
+
+// Len .
+func (s SortRecordList) Len() int {
+	return len(s)
+}
+
+// Less .
+func (s SortRecordList) Less(i, j int) bool {
+	if s[i].Num == s[j].Num {
+		return s[i].Tag == "+"
+	}
+	return s[i].Num < s[j].Num
+}
+
+// Swap .
+func (s SortRecordList) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+// Abs .
+func Abs(n int64) int64 {
+	if n < 0 {
+		return -n
+	}
+	return n
 }
