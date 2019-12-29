@@ -58,17 +58,22 @@ type Dao interface {
 	UpdateHelpCheckinMessage(ctx context.Context, customerID uint64) error
 	GetNeedClearIssueRecords(ctx context.Context) ([]*model.IssueRecord, error)
 	FailureIssueRecord(ctx context.Context, issueRecord *model.IssueRecord) error
-	IsReceiveBenefits(ctx context.Context, customerID uint64) ([]*model.IssueRecordLog, error)
-	GetLuckyNumberRecord(ctx context.Context, customerID uint64) (*model.LuckyNumberRecord, error)
-	GetCompositeIndex(ctx context.Context) (*model.CompositeIndex, error)
-	StoreLuckyNumberRecord(ctx context.Context, customerID uint64, num int64) ([]int64, error)
-	GetCompositeIndexBefore(ctx context.Context) (*model.CompositeIndex, error)
+	IsReceiveBenefitsInD1AndD2(ctx context.Context, customerID uint64, d1, d2 time.Time) ([]*model.IssueRecordLog, error)
+	GetLuckyNumberRecord(ctx context.Context, customerID, activityID uint64) (*model.LuckyNumberRecord, error)
+	StoreLuckyNumberRecord(ctx context.Context, customerID, activityID, num uint64) ([]uint64, error)
 	GetLuckyNumberRecordBefore(ctx context.Context, customerID uint64) (*model.LuckyNumberRecord, error)
-	GetLuckyPeopleBefore(ctx context.Context) (*model.Customer, error)
-	StoreCompositeIndex(ctx context.Context, compositeDate string, points float64) error
-	GetCompositeIndexByQuery(ctx context.Context, query interface{}) (*model.CompositeIndex, error)
+	GetLuckyPeopleBefore(ctx context.Context) ([]*model.LuckyNumberRecord, error)
 	GetRegisterStat(ctx context.Context, beginDate, endDate string) ([]*model.RegisterStat, error)
 	GetCheckinStat(ctx context.Context, beginDate, endDate string) ([]*model.CheckinStat, error)
+	UpsertActivity(ctx context.Context, data *model.ActivityVO) error
+	FindActivity(ctx context.Context, query interface{}, args ...interface{}) (*model.Activity, error)
+	ListActivity(ctx context.Context, query interface{}, pageNo, pageSize int) ([]*model.Activity, int, error)
+	ListActivityParticipant(ctx context.Context, pageNo, pageSize int, query interface{}, args ...interface{}) ([]*model.LuckyNumberRecord, int, error)
+	DrawActivity(ctx context.Context, activityID, number uint64) (*model.Activity, error)
+	IsActivityDateLegal(ctx context.Context, data *model.ActivityVO) (bool, error)
+	DelActivity(ctx context.Context, activityID uint64) error
+	CurrentlyAvailableActivity(ctx context.Context) (*model.Activity, error)
+	ActivityAllPrizeIssued(ctx context.Context) (int, error)
 }
 
 // dao dao.

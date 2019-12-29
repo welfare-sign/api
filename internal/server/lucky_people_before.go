@@ -18,7 +18,7 @@ type LuckyPeopleBeforeRequest struct {
 type LuckyPeopleBeforeResponse struct {
 	wsgin.BaseResponse
 
-	Data *model.Customer `json:"data"`
+	Data []*model.LuckyNumberRecord `json:"data"`
 }
 
 // New .

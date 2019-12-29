@@ -1,6 +1,8 @@
 package apicode
 
-import "welfare-sign/internal/pkg/wsgin"
+import (
+	"welfare-sign/internal/pkg/wsgin"
+)
 
 // api code define
 const (
@@ -38,6 +40,10 @@ const (
 	ErrNoParticipation        wsgin.APICode = "ERR_NO_PARTICIPATION"
 	ErrSave                   wsgin.APICode = "ERR_SAVE"
 	ErrLuckyPeople            wsgin.APICode = "ERR_LUCKY_PEOPLE"
+	ErrActivityClosed         wsgin.APICode = "ErrActivityClosed"
+	ErrActivityDraw           wsgin.APICode = "ErrActivityDraw"
+	ErrActivityDate           wsgin.APICode = "ErrActivityDate"
+	ErrDelete                 wsgin.APICode = "ErrDelete"
 )
 
 func init() {
@@ -75,4 +81,8 @@ func init() {
 	wsgin.APICodeMapZH[ErrNoParticipation] = "禁止参与活动"
 	wsgin.APICodeMapZH[ErrSave] = "保存失败"
 	wsgin.APICodeMapZH[ErrLuckyPeople] = "获取幸运观众失败"
+	wsgin.APICodeMapZH[ErrActivityClosed] = "活动截止时间已过，请等待下次活动开始"
+	wsgin.APICodeMapZH[ErrActivityDraw] = "活动开奖失败，请重试"
+	wsgin.APICodeMapZH[ErrActivityDate] = "所选日期不能和已存在的活动日期重叠"
+	wsgin.APICodeMapZH[ErrDelete] = "删除失败"
 }

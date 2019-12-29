@@ -11,6 +11,8 @@ import (
 // CanPartLuckyNumberActivityRequest .
 type CanPartLuckyNumberActivityRequest struct {
 	wsgin.MustAuthRequest
+
+	ActivityID uint64 `form:"activity_id" json:"activity_id"` // 活动id
 }
 
 // CanPartLuckyNumberActivityResponse .
@@ -37,12 +39,13 @@ func (r *CanPartLuckyNumberActivityRequest) Extract(c *gin.Context) (code wsgin.
 // @Security ApiKeyAuth
 // @Accept json
 // @Produce json
+// @Param activity_id query string true "活动ID"
 // @Success 200 {object} server.CanPartLuckyNumberActivityResponse "{"status":true}"
 // @Router /customers/can_part_lucky_number_activity [get]
 func (r *CanPartLuckyNumberActivityRequest) Exec(ctx context.Context) interface{} {
 	resp := CanPartLuckyNumberActivityResponse{}
 
-	data, code, err := svc.CanPartLuckyNumberActivity(ctx, r.TokenParames.UID)
+	data, code, err := svc.CanPartLuckyNumberActivity(ctx, r.TokenParames.UID, r.ActivityID)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp

@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"time"
 
 	"welfare-sign/internal/global"
 	"welfare-sign/internal/model"
@@ -10,11 +11,11 @@ import (
 	"go.uber.org/zap"
 )
 
-const isReceiveSQL = `
+const (
+	isReceiveSQL = `
 SELECT *FROM issue_record_log WHERE status = ? AND customer_id = ? and created_at BETWEEN 
-DATE_FORMAT( SUBDATE(CURDATE(), WEEKDAY(CURDATE()) + 2), '%Y-%m-%d 00:00:00') AND
-DATE_FORMAT( DATE_ADD(SUBDATE(CURDATE(), WEEKDAY(CURDATE())), INTERVAL 4 DAY), '%Y-%m-%d 12:00:00')
-`
+ ? AND ? `
+)
 
 // FindIssueRecord 获取礼包发放记录详情
 func (d *dao) FindIssueRecord(ctx context.Context, query interface{}) (*model.IssueRecord, error) {
@@ -130,9 +131,9 @@ func (d *dao) CreateIssueRecord(ctx context.Context, data model.IssueRecord, mer
 	return nil
 }
 
-// IsReceiveBenefits 用户是否在指定时间端内领取福利
-func (d *dao) IsReceiveBenefits(ctx context.Context, customerID uint64) ([]*model.IssueRecordLog, error) {
+// IsReceiveBenefitsInD1AndD2 当前时间在指定时间段内是否领取福利
+func (d *dao) IsReceiveBenefitsInD1AndD2(ctx context.Context, customerID uint64, d1, d2 time.Time) ([]*model.IssueRecordLog, error) {
 	var logs []*model.IssueRecordLog
-	err := d.db.Raw(isReceiveSQL, global.ActiveStatus, customerID).Find(&logs).Error
+	err := d.db.Raw(isReceiveSQL, global.ActiveStatus, customerID, d1, d2).Find(&logs).Error
 	return logs, err
 }

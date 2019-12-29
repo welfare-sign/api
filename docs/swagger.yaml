@@ -12,6 +12,45 @@ definitions:
         description: uid
         type: integer
     type: object
+  model.Activity:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      end_time:
+        description: 结束时间
+        type: string
+      id:
+        type: integer
+      name:
+        description: 活动名称
+        type: string
+      poster:
+        description: 活动海报
+        type: string
+      prize_amount:
+        description: 奖品数量
+        type: integer
+      prize_issued:
+        description: 已发放的奖品数目
+        type: integer
+      prize_number:
+        description: 中奖号码
+        type: integer
+      scope:
+        description: 参与方式
+        type: string
+      start_time:
+        description: 开始时间
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
   model.CheckinRecord:
     properties:
       created_at:
@@ -55,27 +94,6 @@ definitions:
         type: string
       num:
         description: 签到次数
-        type: integer
-    type: object
-  model.CompositeIndex:
-    properties:
-      composite_date:
-        description: 上证指数日期
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: integer
-      id:
-        type: integer
-      points:
-        description: 指数
-        type: number
-      status:
-        type: string
-      updated_at:
-        type: string
-      updated_by:
         type: integer
     type: object
   model.Customer:
@@ -158,14 +176,21 @@ definitions:
     type: object
   model.LuckyNumberRecord:
     properties:
-      composite_index:
-        $ref: '#/definitions/model.CompositeIndex'
-        description: 本轮内上证指数
+      activity:
+        $ref: '#/definitions/model.Activity'
+        description: 活动信息
         type: object
+      activity_id:
+        description: 活动ID
+        type: integer
       created_at:
         type: string
       created_by:
         type: integer
+      customer:
+        $ref: '#/definitions/model.Customer'
+        description: 用户信息
+        type: object
       customer_id:
         description: 签到人ID
         type: integer
@@ -174,6 +199,9 @@ definitions:
       lucky_number:
         description: 用户填写的幸运数字
         type: integer
+      mobile:
+        description: 参与人手机号
+        type: string
       ranking:
         description: 本轮幸运数字排名
         type: integer
@@ -343,6 +371,202 @@ definitions:
         description: 生成签名的时间戳
         type: integer
     type: object
+  server.ActivityAddPrizeNumberRequest:
+    properties:
+      activity_id:
+        description: 活动id
+        type: integer
+      prize_number:
+        description: 中奖号码
+        type: integer
+    required:
+    - prize_number
+    type: object
+  server.ActivityAddPrizeNumberResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.Activity'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ActivityAddRequest:
+    properties:
+      end_time:
+        description: 结束时间
+        type: string
+      name:
+        description: 活动名称
+        type: string
+      poster:
+        description: 活动海报
+        type: string
+      prize_amount:
+        description: 奖品数量
+        type: integer
+      scope:
+        description: 参与方式：O：无限制；R：必须在福利签领取过签到奖励
+        type: string
+      start_time:
+        description: 开始时间
+        type: string
+    required:
+    - end_time
+    - name
+    - poster
+    - prize_amount
+    - scope
+    - start_time
+    type: object
+  server.ActivityAddResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ActivityAllPrizeIssuedResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        type: integer
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ActivityCurrentlyAvailableResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.Activity'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ActivityDelRequest:
+    properties:
+      activity_id:
+        description: 活动id
+        type: integer
+    type: object
+  server.ActivityDelResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ActivityDetailResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      data:
+        $ref: '#/definitions/model.Activity'
+        type: object
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+    type: object
+  server.ActivityListResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      current:
+        description: 当前页页码
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/model.Activity'
+        type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+      total:
+        description: 总数量
+        type: integer
+    type: object
+  server.ActivityParticipantListResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: string
+      current:
+        description: 当前页页码
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/model.LuckyNumberRecord'
+        type: array
+      error:
+        description: Error信息
+        type: string
+      message:
+        description: 提示消息
+        type: string
+      status:
+        description: 状态
+        type: boolean
+      total:
+        description: 总数量
+        type: integer
+    type: object
   server.BaseResponse:
     properties:
       code:
@@ -435,51 +659,6 @@ definitions:
       code:
         description: 业务状态码
         type: string
-      error:
-        description: Error信息
-        type: string
-      message:
-        description: 提示消息
-        type: string
-      status:
-        description: 状态
-        type: boolean
-    type: object
-  server.CompositeIndexAddRequest:
-    properties:
-      composite_date:
-        description: 上证指数日期
-        type: string
-      points:
-        description: 指数
-        type: number
-    required:
-    - composite_date
-    - points
-    type: object
-  server.CompositeIndexAddResponse:
-    properties:
-      code:
-        description: 业务状态码
-        type: string
-      error:
-        description: Error信息
-        type: string
-      message:
-        description: 提示消息
-        type: string
-      status:
-        description: 状态
-        type: boolean
-    type: object
-  server.CompositeIndexDetailResponse:
-    properties:
-      code:
-        description: 业务状态码
-        type: string
-      data:
-        $ref: '#/definitions/model.CompositeIndex'
-        type: object
       error:
         description: Error信息
         type: string
@@ -727,10 +906,14 @@ definitions:
     type: object
   server.LuckyNumberAddRequest:
     properties:
+      activity_id:
+        description: 活动ID
+        type: integer
       num:
         description: 猜的数字
         type: integer
     required:
+    - activity_id
     - num
     type: object
   server.LuckyNumberAddResponse:
@@ -794,8 +977,9 @@ definitions:
         description: 业务状态码
         type: string
       data:
-        $ref: '#/definitions/model.Customer'
-        type: object
+        items:
+          $ref: '#/definitions/model.LuckyNumberRecord'
+        type: array
       error:
         description: Error信息
         type: string
@@ -1131,40 +1315,18 @@ info:
   title: 福利签API文档
   version: "1.0"
 paths:
-  /composite_index:
-    get:
+  /activitys:
+    delete:
       consumes:
       - application/json
-      description: get composite index
-      parameters:
-      - description: 日期
-        in: query
-        name: composite_date
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"status":true}'
-          schema:
-            $ref: '#/definitions/server.CompositeIndexDetailResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: 获取上证指数
-      tags:
-      - 上证指数
-    post:
-      consumes:
-      - application/json
-      description: post composite index
+      description: delete activity
       parameters:
       - description: 参数
         in: body
         name: args
         required: true
         schema:
-          $ref: '#/definitions/server.CompositeIndexAddRequest'
+          $ref: '#/definitions/server.ActivityDelRequest'
           type: object
       produces:
       - application/json
@@ -1172,12 +1334,189 @@ paths:
         "200":
           description: '{"status":true}'
           schema:
-            $ref: '#/definitions/server.CompositeIndexAddResponse'
+            $ref: '#/definitions/server.ActivityDelResponse'
       security:
       - ApiKeyAuth: []
-      summary: 添加或者更新上证指数
+      summary: 删除活动
       tags:
-      - 上证指数
+      - 活动
+    get:
+      consumes:
+      - application/json
+      description: get activity list
+      parameters:
+      - description: 活动名
+        in: query
+        name: name
+        type: string
+      - default: 1
+        description: 页码
+        in: query
+        name: page_no
+        type: integer
+      - default: 10
+        description: 页数
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ActivityListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取活动列表
+      tags:
+      - 活动
+    put:
+      consumes:
+      - application/json
+      description: post or update activity
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.ActivityAddRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ActivityAddResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 添加或者更新活动信息
+      tags:
+      - 活动
+  /activitys/all_prize_issued:
+    get:
+      consumes:
+      - application/json
+      description: get activity all prize issued
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ActivityAllPrizeIssuedResponse'
+      summary: 获取所有活动已发放的奖品总数
+      tags:
+      - 活动
+  /activitys/currently_available:
+    get:
+      consumes:
+      - application/json
+      description: get currently available activity detail
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ActivityCurrentlyAvailableResponse'
+      summary: 获取当前可参与的活动
+      tags:
+      - 活动
+  /activitys/detail:
+    get:
+      consumes:
+      - application/json
+      description: get activity detail
+      parameters:
+      - description: 活动ID
+        in: query
+        name: activity_id
+        type: string
+      - description: 活动名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ActivityDetailResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取活动详情
+      tags:
+      - 活动
+  /activitys/draw:
+    post:
+      consumes:
+      - application/json
+      description: Draw
+      parameters:
+      - description: 参数
+        in: body
+        name: args
+        required: true
+        schema:
+          $ref: '#/definitions/server.ActivityAddPrizeNumberRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ActivityAddPrizeNumberResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 开奖
+      tags:
+      - 活动
+  /activitys/participant:
+    get:
+      consumes:
+      - application/json
+      description: get activity participant list
+      parameters:
+      - description: 活动ID
+        in: query
+        name: activity_id
+        required: true
+        type: string
+      - description: 参与者手机号
+        in: query
+        name: mobile
+        type: string
+      - description: 是否查询中奖名单列表
+        in: query
+        name: is_search_win
+        type: boolean
+      - default: 1
+        description: 页码
+        in: query
+        name: page_no
+        type: integer
+      - default: 10
+        description: 页数
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status":true}'
+          schema:
+            $ref: '#/definitions/server.ActivityParticipantListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取活动参与者信息列表
+      tags:
+      - 活动
   /customers:
     delete:
       consumes:
@@ -1247,6 +1586,12 @@ paths:
       consumes:
       - application/json
       description: can participate in the lucky number activity
+      parameters:
+      - description: 活动ID
+        in: query
+        name: activity_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1485,6 +1830,12 @@ paths:
       consumes:
       - application/json
       description: get customer lucky number
+      parameters:
+      - description: 活动ID
+        in: query
+        name: activity_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1535,7 +1886,7 @@ paths:
             $ref: '#/definitions/server.LuckyNumberBeforeResponse'
       security:
       - ApiKeyAuth: []
-      summary: 用户上期猜的数字
+      summary: 查看用户上期的结果
       tags:
       - 客户
   /customers/near_merchant:

@@ -31,8 +31,8 @@ func (r *LuckyNumberBeforeRequest) Extract(c *gin.Context) (code wsgin.APICode, 
 	return r.DefaultExtract(r, c)
 }
 
-// Exec 用户上期猜的数字
-// @Summary 用户上期猜的数字
+// Exec 查看用户上期的结果
+// @Summary 查看用户上期的结果
 // @Description get customer lucky number before
 // @Tags 客户
 // @Security ApiKeyAuth

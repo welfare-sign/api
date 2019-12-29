@@ -112,10 +112,16 @@ func initRouter(e *gin.Engine) {
 		wx.POST("/pay/notify", wsgin.ProcessExec(&WxpayCallbackRequest{}))
 	}
 
-	composite := v1.Group("/composite_index")
+	activitys := v1.Group("/activitys")
 	{
-		composite.POST("", wsgin.ProcessExec(&CompositeIndexAddRequest{}))
-		composite.GET("", wsgin.ProcessExec(&CompositeIndexDetailRequest{}))
+		activitys.PUT("", wsgin.ProcessExec(&ActivityAddRequest{}))
+		activitys.POST("/draw", wsgin.ProcessExec(&ActivityAddPrizeNumberRequest{}))
+		activitys.GET("/detail", wsgin.ProcessExec(&ActivityDetailRequest{}))
+		activitys.GET("", wsgin.ProcessExec(&ActivityListRequest{}))
+		activitys.GET("/participant", wsgin.ProcessExec(&ActivityParticipantListRequest{}))
+		activitys.DELETE("", wsgin.ProcessExec(&ActivityDelRequest{}))
+		activitys.GET("/currently_available", wsgin.ProcessExec(&ActivityCurrentlyAvailableRequest{}))
+		activitys.GET("/all_prize_issued", wsgin.ProcessExec(&ActivityAllPrizeIssuedRequest{}))
 	}
 
 	stat := v1.Group("/stat")

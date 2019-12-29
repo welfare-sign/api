@@ -202,17 +202,17 @@ look:
 }
 
 // GetRecommandNum 获取推荐的数字
-func GetRecommandNum(oldNum int64, nums []int64) ([]int64, error) {
+func GetRecommandNum(oldNum uint64, nums []uint64) ([]uint64, error) {
 	if len(nums) == 0 {
-		return []int64{}, errors.New("不存在的数字列表")
+		return []uint64{}, errors.New("不存在的数字列表")
 	}
 	maxNum := getPropeNum(oldNum+1, "+", nums)
 	minNum := getPropeNum(oldNum-1, "-", nums)
-	return []int64{minNum, maxNum}, errors.New("您填入的数字已被占用")
+	return []uint64{minNum, maxNum}, errors.New("您填入的数字已被占用")
 }
 
-func getPropeNum(num int64, tag string, nums []int64) int64 {
-	if !collection.Collect(nums).Contains(num) {
+func getPropeNum(num uint64, tag string, nums []uint64) uint64 {
+	if !collection.Collect(nums).Contains(num) || num == 0 {
 		return num
 	}
 	if tag == "+" {
@@ -227,7 +227,7 @@ func getPropeNum(num int64, tag string, nums []int64) int64 {
 type SortRecord struct {
 	Tag string
 	ID  uint64
-	Num int64
+	Num uint64
 }
 
 // SortRecordList .
@@ -257,4 +257,33 @@ func Abs(n int64) int64 {
 		return -n
 	}
 	return n
+}
+
+// GetDefineFriday 获取周五12点
+func GetDefineFriday() time.Time {
+	now := time.Now()
+
+	offset := int(time.Friday - now.Weekday())
+	if offset == 5 {
+		offset = -2
+	}
+
+	return time.Date(now.Year(), now.Month(), now.Day(), 12, 0, 0, 0, time.Local).AddDate(0, 0, offset)
+}
+
+// GetDefineSaturday 获取周六零点
+func GetDefineSaturday() time.Time {
+	now := time.Now()
+
+	offset := int(time.Saturday - now.Weekday())
+	if offset == 6 {
+		offset = -1
+	}
+	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset)
+}
+
+// IsCurrentTimeBetweenD1AndD2 计算当前时间是否在两个时间段内
+func IsCurrentTimeBetweenD1AndD2(d1, d2 time.Time) bool {
+	now := time.Now()
+	return now.After(d1) && now.Before(d2)
 }

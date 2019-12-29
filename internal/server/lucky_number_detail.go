@@ -12,6 +12,8 @@ import (
 // LuckyNumberDetailRequest .
 type LuckyNumberDetailRequest struct {
 	wsgin.MustAuthRequest
+
+	ActivityID uint64 `json:"activity_id" binding:"required"` // 活动ID
 }
 
 // LuckyNumberDetailResponse .
@@ -38,11 +40,12 @@ func (r *LuckyNumberDetailRequest) Extract(c *gin.Context) (code wsgin.APICode, 
 // @Security ApiKeyAuth
 // @Accept json
 // @Produce json
+// @Param activity_id query string true "活动ID"
 // @Success 200 {object} server.LuckyNumberDetailResponse "{"status":true}"
 // @Router /customers/lucky_number [get]
 func (r *LuckyNumberDetailRequest) Exec(ctx context.Context) interface{} {
 	resp := LuckyNumberDetailResponse{}
-	data, code, err := svc.GetLuckyNumberDetail(ctx, r.TokenParames.UID)
+	data, code, err := svc.GetLuckyNumberDetail(ctx, r.TokenParames.UID, r.ActivityID)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp

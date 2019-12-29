@@ -12,14 +12,15 @@ import (
 type LuckyNumberAddRequest struct {
 	wsgin.MustAuthRequest
 
-	Num int64 `json:"num" binding:"required"` // 猜的数字
+	ActivityID uint64 `json:"activity_id" binding:"required"` // 活动ID
+	Num        uint64 `json:"num" binding:"required"`         // 猜的数字
 }
 
 // LuckyNumberAddResponse .
 type LuckyNumberAddResponse struct {
 	wsgin.BaseResponse
 
-	Data []int64 `json:"data"`
+	Data []uint64 `json:"data"`
 }
 
 // New .
@@ -44,7 +45,7 @@ func (r *LuckyNumberAddRequest) Extract(c *gin.Context) (code wsgin.APICode, err
 // @Router /customers/lucky_number [post]
 func (r *LuckyNumberAddRequest) Exec(ctx context.Context) interface{} {
 	resp := LuckyNumberAddResponse{}
-	data, code, err := svc.AddLuckyNumber(ctx, r.TokenParames.UID, r.Num)
+	data, code, err := svc.AddLuckyNumber(ctx, r.TokenParames.UID, r.ActivityID, r.Num)
 	resp.BaseResponse = wsgin.NewResponse(ctx, code, err)
 	resp.Data = data
 	return resp
