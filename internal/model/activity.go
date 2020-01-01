@@ -6,14 +6,15 @@ import "time"
 type Activity struct {
 	Base
 
-	Name        string    `json:"name" gorm:"not null"`                     // 活动名称
-	StartTime   time.Time `json:"start_time" gorm:"not null;type:datetime"` // 开始时间
-	EndTime     time.Time `json:"end_time" gorm:"not null;type:datetime"`   // 结束时间
-	Scope       string    `json:"scope"  gorm:"type:char(1);not null"`      // 参与方式
-	PrizeAmount uint64    `json:"prize_amount" gorm:"not null"`             // 奖品数量
-	Poster      string    `json:"poster" gorm:"not null"`                   // 活动海报
-	PrizeNumber uint64    `json:"prize_number"`                             // 中奖号码
-	PrizeIssued uint64    `json:"prize_issued" gorm:"-"`                    // 已发放的奖品数目
+	Name              string    `json:"name" gorm:"not null"`                     // 活动名称
+	StartTime         time.Time `json:"start_time" gorm:"not null;type:datetime"` // 开始时间
+	EndTime           time.Time `json:"end_time" gorm:"not null;type:datetime"`   // 结束时间
+	Scope             string    `json:"scope"  gorm:"type:char(1);not null"`      // 参与方式
+	PrizeAmount       uint64    `json:"prize_amount" gorm:"not null"`             // 奖品数量
+	Poster            string    `json:"poster" gorm:"not null"`                   // 活动海报
+	PrizeNumber       uint64    `json:"prize_number"`                             // 中奖号码
+	PrizeIssued       uint64    `json:"prize_issued"`                             // 中奖总数
+	ParticipantsTotal uint64    `json:"participants_total"`                       // 参与总数
 }
 
 // ActivityVO 添加活动参数

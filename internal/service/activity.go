@@ -147,6 +147,6 @@ func (s *Service) ActivityAllPrizeIssued(ctx context.Context) (int, wsgin.APICod
 	if err != nil {
 		return 0, wsgin.APICodeDefault, err
 	}
-	num := total*97 + total*5 + 5000
+	num := total*97 + total*5 + 5029
 	return num, wsgin.APICodeSuccess, nil
 }

@@ -83,17 +83,6 @@ func (d *dao) ListActivity(ctx context.Context, query interface{}, pageNo, pageS
 	if err := checkErr(d.db.Model(&model.Activity{}).Where(query).Count(&total).Error); err != nil {
 		return activitys, total, err
 	}
-	for i := 0; i < len(activitys); i++ {
-		if activitys[i].PrizeNumber == 0 {
-			continue
-		}
-		c := 0
-		if err := checkErr(d.db.Model(&model.LuckyNumberRecord{}).Where("activity_id = ? and ranking between ? and ?", activitys[i].ID, 1, activitys[i].PrizeAmount).Count(&c).Error); err != nil {
-			log.Warn(ctx, "计算活动列表中已发放奖励出现错误", zap.Error(err))
-			continue
-		}
-		activitys[i].PrizeIssued = uint64(c)
-	}
 	return activitys, total, nil
 }
 
@@ -129,10 +118,6 @@ func (d *dao) DrawActivity(ctx context.Context, activityID, number uint64) (*mod
 	}
 	activity.UpdatedAt = time.Now()
 	activity.PrizeNumber = number
-	if err := tx.Save(activity).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
 	// 更新
 	/*
 		UPDATE mytable SET
@@ -184,7 +169,27 @@ func (d *dao) DrawActivity(ctx context.Context, activityID, number uint64) (*mod
 		sql += fmt.Sprintf("WHEN %d THEN %d ", r.ID, k+1)
 	}
 	sql += fmt.Sprintf("END WHERE id IN (%s)", strings.Join(ids, ","))
-	if err := tx.Raw(sql).Error; err != nil {
+	if err := tx.Exec(sql).Error; err != nil {
+		tx.Rollback()
+		return &activity, err
+	}
+	// 计算中奖总数
+	c := 0
+	if err := checkErr(tx.Model(&model.LuckyNumberRecord{}).Where("activity_id = ? and ranking between ? and ?", activityID, 1, activity.PrizeAmount).Count(&c).Error); err != nil {
+		log.Warn(ctx, "计算中奖总数时发生错误", zap.Error(err))
+		tx.Rollback()
+		return &activity, err
+	}
+	activity.PrizeIssued = uint64(c)
+	// 计算参与总数
+	t := 0
+	if err := checkErr(tx.Model(&model.LuckyNumberRecord{}).Where("activity_id = ?", activityID).Count(&t).Error); err != nil {
+		log.Warn(ctx, "计算参与总数时发生错误", zap.Error(err))
+		tx.Rollback()
+		return &activity, err
+	}
+	activity.ParticipantsTotal = uint64(t)
+	if err := tx.Save(activity).Error; err != nil {
 		tx.Rollback()
 		return &activity, err
 	}
