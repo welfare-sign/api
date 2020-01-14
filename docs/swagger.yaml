@@ -26,6 +26,9 @@ definitions:
       name:
         description: 活动名称
         type: string
+      participants_total:
+        description: 参与总数
+        type: integer
       poster:
         description: 活动海报
         type: string
@@ -33,7 +36,7 @@ definitions:
         description: 奖品数量
         type: integer
       prize_issued:
-        description: 已发放的奖品数目
+        description: 中奖总数
         type: integer
       prize_number:
         description: 中奖号码
